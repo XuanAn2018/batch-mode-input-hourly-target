@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MES Pro - Batch Production Master v2.6</title>
+    <title>MES Pro - Batch Production Master v2.7 | Hover Image Preview</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -543,17 +543,51 @@
             justify-content: center;
             border-right: 1px solid var(--gray-200);
             overflow: hidden;
+            cursor: pointer;
         }
         
         .pkg-img {
             width: 100%;
             height: 100%;
+            min-height: 70px;
             object-fit: cover;
             transition: all var(--transition-base);
         }
         
         .package-card:hover .pkg-img {
             transform: scale(1.05);
+        }
+        
+        /* HOVER PREVIEW - ẢNH LỚN NHƯ GỐC */
+        .pkg-img-preview {
+            position: fixed;
+            z-index: 10000;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+            display: none;
+            pointer-events: none;
+            max-width: 400px;
+            max-height: 500px;
+            border: 3px solid #2196F3;
+        }
+        
+        .pkg-img-preview img {
+            width: 100%;
+            height: auto;
+            max-height: 500px;
+            object-fit: contain;
+            display: block;
+        }
+        
+        .pkg-img-preview .preview-caption {
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 6px 12px;
+            font-size: 11px;
+            text-align: center;
+            word-break: break-all;
         }
         
         /* Info Column - ĐÃ TĂNG KÍCH THƯỚC CHỮ */
@@ -1394,20 +1428,19 @@
         }
 
         .tag-color {
-    max-width: none; /* Xóa giới hạn cứng */
-    white-space: nowrap; /* Giữ trên 1 dòng */
-    overflow: visible; /* Hiển thị đầy đủ */
-    flex-shrink: 0; /* Không bị co lại */
-}
+            max-width: none;
+            white-space: nowrap;
+            overflow: visible;
+            flex-shrink: 0;
+        }
 
-/* Trên màn hình nhỏ thì cho phép xuống dòng */
-@media (max-width: 768px) {
-    .tag-color {
-        white-space: normal;
-        word-break: break-word;
-        max-width: 100px;
-    }
-}
+        @media (max-width: 768px) {
+            .tag-color {
+                white-space: normal;
+                word-break: break-word;
+                max-width: 100px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1416,7 +1449,7 @@
     <!-- HEADER -->
     <div class="header">
         <div class="header-title">
-            <i class="fas fa-industry"></i> Batch Mode Pro v2.6
+            <i class="fas fa-industry"></i> Batch Mode Pro v2.7
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
             <a href="https://input-hourly-target.vercel.app/" target="_blank" class="header-manual-btn">
@@ -1424,6 +1457,12 @@
             </a>
             <div class="header-badge"><i class="fas fa-bolt"></i> BATCH</div>
         </div>
+    </div>
+
+    <!-- HOVER PREVIEW ELEMENT -->
+    <div id="imagePreview" class="pkg-img-preview">
+        <img id="previewImage" src="" alt="Preview">
+        <div id="previewCaption" class="preview-caption"></div>
     </div>
 
     <!-- COMPACT TOOLBAR -->
@@ -1442,7 +1481,7 @@
                     <option value="P2A1">P2A1</option>
                     <option value="P2B1">P2B1</option>
                     <option value="P2D1">P2D1</option>
-                    <option value="P2D1">P2E1</option>
+                    <option value="P2E1">P2E1</option>
                 </select>
             </div>
             
@@ -1519,7 +1558,7 @@
         </div>
     </div>
 
-    <!-- COMPACT ACTION BAR - PHIÊN BẢN 2.6 HOÀN CHỈNH -->
+    <!-- COMPACT ACTION BAR - PHIÊN BẢN 2.7 HOÀN CHỈNH -->
     <div class="compact-action-bar">
         <!-- CHỌN GÓI (BÊN TRÁI) -->
         <div class="compact-action-group">
@@ -2056,7 +2095,58 @@
         renderPackageList(filtered);
     }
 
-    // ========== 7. RENDERING FUNCTIONS ==========
+    // ========== 7. RENDERING FUNCTIONS WITH HOVER PREVIEW ==========
+    function generateThumbnailUrl(pkgId, apiFileName) {
+        if (!apiFileName) return 'https://placehold.co/150x200?text=No+Img';
+        
+        try {
+            const parts = pkgId.split('_');
+            if (parts.length < 4) return 'https://placehold.co/150x200?text=Invalid';
+
+            const stylePart = parts[3];
+            const styleFolder = stylePart.substring(0, 7).toUpperCase(); 
+            const buyer = stylePart.substring(0, 3).toUpperCase();
+
+            const fullUrl = `${API_URLS.IMG_PROXY}/PKPDM/style/${buyer}/${styleFolder}/Images/${apiFileName}`;
+            return `https://wsrv.nl/?url=${encodeURIComponent(fullUrl)}&w=250&output=webp&q=85`;
+        } catch(e) {
+            console.error("Error generating thumb:", e);
+            return 'https://placehold.co/150x200?text=Error';
+        }
+    }
+
+    function getFullImageUrl(pkgId, apiFileName) {
+        if (!apiFileName) return null;
+        try {
+            const parts = pkgId.split('_');
+            if (parts.length < 4) return null;
+            const stylePart = parts[3];
+            const styleFolder = stylePart.substring(0, 7).toUpperCase();
+            const buyer = stylePart.substring(0, 3).toUpperCase();
+            return `${API_URLS.IMG_PROXY}/PKPDM/style/${buyer}/${styleFolder}/Images/${apiFileName}`;
+        } catch(e) { return null; }
+    }
+
+    // ========== HOVER IMAGE PREVIEW ==========
+    const previewDiv = document.getElementById('imagePreview');
+    const previewImg = document.getElementById('previewImage');
+    const previewCaption = document.getElementById('previewCaption');
+    
+    function showImagePreview(event, imgUrl, caption) {
+        if (!imgUrl) return;
+        previewImg.src = imgUrl;
+        previewCaption.textContent = caption;
+        previewDiv.style.display = 'block';
+        const x = event.clientX + 15;
+        const y = event.clientY + 15;
+        previewDiv.style.left = Math.min(x, window.innerWidth - previewDiv.offsetWidth - 10) + 'px';
+        previewDiv.style.top = Math.min(y, window.innerHeight - previewDiv.offsetHeight - 10) + 'px';
+    }
+    
+    function hideImagePreview() { 
+        previewDiv.style.display = 'none'; 
+    }
+
     function renderPackageList(list) {
         const container = document.getElementById('packageListContainer');
         if (list.length === 0) {
@@ -2089,15 +2179,20 @@
             }
 
             const isSelected = batchSelected.has(p.id);
-            const config = batchConfigs[p.id] || { shift: 'morning', otMode: '4h', hours: 7.5 };
+            const config = batchConfigs[p.id] || { shift: 'morning', otMode: '3h', hours: 7.5 };
             const thumbUrl = generateThumbnailUrl(p.id, p.fileName);
+            const fullUrl = getFullImageUrl(p.id, p.fileName);
+            
+            // Escape caption for safe HTML attribute
+            const safeCaption = `${p.id} - ${p.style}`.replace(/'/g, "\\'").replace(/"/g, '&quot;');
 
             const card = document.createElement('div');
             card.className = `package-card ${isSelected ? 'selected' : ''}`;
             card.id = `card-${p.id}`;
             
             card.innerHTML = `
-                <div class="col-img">
+                <div class="col-img" 
+                     ${fullUrl ? `onmouseenter="showImagePreview(event, '${fullUrl}', '${safeCaption}')" onmouseleave="hideImagePreview()"` : ''}>
                     <img src="${thumbUrl}" class="pkg-img" 
                          onerror="this.src='https://placehold.co/100?text=No+Img'"
                          alt="${p.style}">
@@ -2267,7 +2362,7 @@
         if (hours <= 0) return;
         
         if (!batchConfigs[pkgId]) {
-            batchConfigs[pkgId] = { shift: 'morning', otMode: '4h', hours: hours };
+            batchConfigs[pkgId] = { shift: 'morning', otMode: '3h', hours: hours };
         } else {
             batchConfigs[pkgId].hours = hours;
         }
@@ -2331,27 +2426,8 @@
         document.getElementById('processBtn').disabled = totalPackages === 0;
     }
 
-    function generateThumbnailUrl(pkgId, apiFileName) {
-        if (!apiFileName) return 'https://placehold.co/150x200?text=No+Img';
-        
-        try {
-            const parts = pkgId.split('_');
-            if (parts.length < 4) return 'https://placehold.co/150x200?text=Invalid';
-
-            const stylePart = parts[3];
-            const styleFolder = stylePart.substring(0, 7).toUpperCase(); 
-            const buyer = stylePart.substring(0, 3).toUpperCase();
-
-            const fullUrl = `${API_URLS.IMG_PROXY}/PKPDM/style/${buyer}/${styleFolder}/Images/${apiFileName}`;
-            return `https://wsrv.nl/?url=${encodeURIComponent(fullUrl)}&w=250&output=webp&q=85`;
-        } catch(e) {
-            console.error("Error generating thumb:", e);
-            return 'https://placehold.co/150x200?text=Error';
-        }
-    }
-
     // ========== 10. BATCH PROCESSING FUNCTIONS ==========
-    function divideQuantityByHours(totalQty, hours, shiftType = 'morning', otMode = '4h') {
+    function divideQuantityByHours(totalQty, hours, shiftType = 'morning', otMode = '3h') {
         // Làm tròn đến 0.5h
         const roundedHours = Math.round(hours * 2) / 2;
         
@@ -2626,7 +2702,7 @@
         const totalCount = batchSelected.size;
         const apiKey = document.getElementById('apiKey').value;
 
-        // Reset progress - SỬA: Chỉ tính % khi thành công
+        // Reset progress
         updateProgress(0, totalCount, 0, 0, null, null, true);
 
         // Bắt đầu vòng lặp xử lý
@@ -2644,7 +2720,7 @@
                     continue;
                 }
                 
-                // Cập nhật progress TRƯỚC KHI gửi dữ liệu (chỉ hiển thị đang xử lý)
+                // Cập nhật progress TRƯỚC KHI gửi dữ liệu
                 updateProgress(processedCount, totalCount, successCount, failCount, pkg, cfg, false);
                 
                 // Tính toán phân bổ
@@ -2690,7 +2766,7 @@
                 // Cập nhật progress SAU KHI thành công
                 updateProgress(processedCount, totalCount, successCount, failCount, pkg, cfg, true);
                 
-                await new Promise(resolve => setTimeout(resolve, 300)); // Delay để người dùng kịp nhìn thấy item
+                await new Promise(resolve => setTimeout(resolve, 300));
                 
             } catch (error) {
                 console.error(`❌ Lỗi gửi ${pkgId}:`, error);
@@ -2728,8 +2804,6 @@
     // CÁC HÀM HỖ TRỢ HIỂN THỊ - ĐÃ SỬA PHẦN PROGRESS
     // ============================================
     function updateProgress(current, total, success, fail, pkg, cfg, updatePercent = true) {
-        // SỬA QUAN TRỌNG: Chỉ tính % dựa trên số đã xử lý THÀNH CÔNG
-        // Thay vì tính % dựa trên current/total
         const percent = total > 0 ? Math.floor((success / total) * 100) : 0;
         
         const progressBar = document.getElementById('progressBar');
