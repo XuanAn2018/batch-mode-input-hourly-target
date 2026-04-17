@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MES Pro - Batch Production Master v2.7 | Hover Image Preview</title>
+    <title>MES Pro - Batch Production Master v2.8 | Hover Image Preview</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -508,7 +508,7 @@
         
         .package-card {
             display: grid;
-            grid-template-columns: 70px 1fr 90px 200px;
+            grid-template-columns: 70px 1fr 200px 200px;
             background: white;
             border: 2px solid var(--gray-200);
             border-radius: var(--radius-md);
@@ -662,13 +662,13 @@
         }
         
         .qty-fraction {
-            font-size: 13px;
+            font-size: 18px;
             font-weight: 800;
             margin-bottom: 2px;
         }
-        
+
         .status-text {
-            font-size: 9px;
+            font-size: 11px;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.2px;
@@ -693,21 +693,19 @@
         
         /* Overtime Badge */
         .ot-badge {
-            position: absolute;
-            top: 4px;
-            left: 50%;
-            transform: translateX(-50%);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             background: var(--gradient-secondary);
             color: white;
-            font-size: 8px;
-            padding: 3px 8px;
+            font-size: 13px;
+            padding: 4px 10px;
             border-radius: 15px;
             font-weight: 800;
             text-transform: uppercase;
             white-space: nowrap;
-            z-index: 1;
             box-shadow: var(--shadow-sm);
-            letter-spacing: 0.2px;
+            letter-spacing: 0.3px;
         }
         
         /* Command Center */
@@ -1051,7 +1049,7 @@
         /* ========== RESPONSIVE DESIGN ========== */
         @media (max-width: 1200px) {
             .package-card {
-                grid-template-columns: 60px 1fr 80px 180px;
+                grid-template-columns: 60px 1fr 120px 180px;
             }
             
             .compact-stats-bar {
@@ -1083,7 +1081,7 @@
             }
             
             .package-card {
-                grid-template-columns: 50px 1fr 70px 160px;
+                grid-template-columns: 50px 1fr 110px 160px;
             }
             
             .compact-toolbar {
@@ -1449,7 +1447,7 @@
     <!-- HEADER -->
     <div class="header">
         <div class="header-title">
-            <i class="fas fa-industry"></i> Batch Mode Pro v2.7
+            <i class="fas fa-industry"></i> Batch Mode Pro v2.8
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
             <a href="https://input-hourly-target.vercel.app/" target="_blank" class="header-manual-btn">
@@ -1491,7 +1489,7 @@
             </div>
             
             <button class="btn btn-primary" onclick="loadPackages()">
-                <i class="fas fa-sync-alt"></i> Tải
+                <i class="fas fa-sync-alt"></i> Tải Package
             </button>
         </div>
         
@@ -2006,6 +2004,7 @@
                     remarks: p.remarks || p.REMARKS || "",
                     actual: null,
                     hasOT: false,
+                    otAchieved: 0,   // ← THÊM DÒNG NÀY
                     loading: true,
                     searchStr: `${pid} ${p.styleText} ${p.lineName} ${p.color} ${p.remarks}`.toLowerCase()
                 };
@@ -2284,6 +2283,7 @@
                     const jsonOT = await resOT.json();
                     if (jsonOT.success && jsonOT.data?.slot_analysis) {
                         p.hasOT = jsonOT.data.slot_analysis.has_ot || false;
+                        p.otAchieved = jsonOT.data.slot_analysis.ot_achieved || 0;  // ← THÊM DÒNG NÀY
                     }
                 } catch (otErr) {
                     console.warn(`OT check failed for ${p.id}:`, otErr);
@@ -2343,10 +2343,10 @@
         // Update UI
         statusEl.className = `col-status ${statusClass}`;
         statusEl.innerHTML = `
-            ${p.hasOT ? '<div class="ot-badge">Overtime</div>' : ''}
             <div class="status-display">
                 <div class="qty-fraction">${p.actual} / ${p.target}</div>
                 <div class="status-text">${statusText}</div>
+                ${p.hasOT ? `<div class="ot-badge" style="margin-top:4px;">OT: ${p.otAchieved}</div>` : ''}
             </div>
         `;
     }
