@@ -1292,7 +1292,12 @@
             <p>Nhập thông tin đăng nhập để tiếp tục</p>
             <div class="auth-input-group">
                 <input type="text" id="authUsername" placeholder="Tên đăng nhập" autocomplete="username">
-                <input type="password" id="authPassword" placeholder="Mật khẩu" autocomplete="current-password">
+                <div style="position:relative;width:100%;">
+                    <input type="password" id="authPassword" placeholder="Mật khẩu" autocomplete="current-password" style="width:100%;padding-right:40px;">
+                    <span id="authPasswordToggle" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--gray-500);font-size:16px;padding:4px;" onclick="togglePasswordVisibility()">
+                        <i class="fas fa-eye"></i>
+                    </span>
+                </div>
             </div>
             <button id="authBtn" class="auth-btn" onclick="handleLogin()">
                 <i class="fas fa-unlock-alt"></i> Đăng nhập
@@ -1596,7 +1601,7 @@
 
     // Auth endpoints
     const WORKER_LOGIN_ENDPOINT = "https://auth-password-gate.chiscoong-cloudflare-com.workers.dev/input-target-pro/verify";
-    const WORKER_VALIDATE_ENDPOINT = "https://auth-password-gate.chiscoong-cloudflare-com.workers.dev/validate-session";
+    const WORKER_VALIDATE_ENDPOINT = "https://auth-password-gate.chiscoong-cloudflare-com.workers.dev/input-target-pro/validate-session";
 
     // ========== AUTH FUNCTIONS ==========
 
@@ -1701,6 +1706,19 @@
         const btn = document.getElementById('authBtn');
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-unlock-alt"></i> Đăng nhập';
+    }
+
+    // Toggle password visibility
+    function togglePasswordVisibility() {
+        const pw = document.getElementById('authPassword');
+        const icon = document.querySelector('#authPasswordToggle i');
+        if (pw.type === 'password') {
+            pw.type = 'text';
+            icon.className = 'fas fa-eye-slash';
+        } else {
+            pw.type = 'password';
+            icon.className = 'fas fa-eye';
+        }
     }
 
     // Allow pressing Enter to login
