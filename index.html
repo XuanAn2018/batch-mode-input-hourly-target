@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MES Pro - Batch Production Master v3.0</title>
+    <title>MES Pro - Batch Production Master v3.1</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -1311,7 +1311,7 @@
     <!-- HEADER -->
     <div class="header">
         <div class="header-title">
-            <i class="fas fa-industry"></i> Batch Mode Pro v3.0
+            <i class="fas fa-industry"></i> Batch Mode Pro v3.1
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
             <a href="https://input-hourly-target.vercel.app/" target="_blank" class="header-manual-btn">
@@ -1334,10 +1334,6 @@
     <div class="compact-toolbar">
         <!-- INPUT GROUPS -->
         <div style="display: flex; flex-wrap: wrap; gap: 8px; flex: 1;">
-            <div class="compact-input-group">
-                <label><i class="fas fa-key"></i> API Key</label>
-                <input type="password" id="apiKey" class="compact-input" placeholder="API Key..." onchange="saveConfig()">
-            </div>
             
             <div class="compact-input-group">
                 <label><i class="fas fa-industry"></i> Factory</label>
@@ -1590,18 +1586,37 @@
 
 <script>
     // ========== 1. GLOBAL VARIABLES ==========
+
+    // Proxy base URL — all MES requests go through this
+    const PROXY_BASE = "https://mes-proxy.chiscoong-cloudflare-com.workers.dev";
+    const BASE_URL = PROXY_BASE || window.location.origin;
+
+    // apiFetch — wraps fetch with Authorization header, no apikey
+    async function apiFetch(url, options = {}) {
+        const token = localStorage.getItem('token') || '';
+        const headers = { ...options.headers };
+        if (token) headers['Authorization'] = 'Bearer ' + token;
+        // Remove apikey from URL if present (proxy will inject it)
+        const u = new URL(url, BASE_URL);
+        u.searchParams.delete('apikey');
+        // Remove X-API-Key header if client set it (proxy handles auth)
+        delete headers['X-API-Key'];
+        return fetch(u.toString(), { ...options, headers });
+    }
+
+    // Proxy endpoint URLs — all point to proxy Worker
     const API_URLS = {
-        PACKAGE: "https://today-package.chiscoong-cloudflare-com.workers.dev/api/packages",
-        PROD: "https://hourly-target.chiscoong-cloudflare-com.workers.dev/api/production",
-        MODULE: "https://module-requests.chiscoong-cloudflare-com.workers.dev/opdetails",
-        OT: "https://ot-requests.chiscoong-cloudflare-com.workers.dev/package/slot-summary",
-        IMG_PROXY: "https://mes-proxy.vercel.app/api",
-        SCANNER: "https://mes-qr-scanner.chiscoong-cloudflare-com.workers.dev/"
+        PACKAGE: BASE_URL + "/packages",
+        PROD: BASE_URL + "/production",
+        MODULE: BASE_URL + "/opdetails",
+        OT: BASE_URL + "/ot",
+        IMG_PROXY: BASE_URL + "/img",
+        SCANNER: BASE_URL + "/scan",
     };
 
-    // Auth endpoints
-    const WORKER_LOGIN_ENDPOINT = "https://auth-password-gate.chiscoong-cloudflare-com.workers.dev/input-target-pro/verify";
-    const WORKER_VALIDATE_ENDPOINT = "https://auth-password-gate.chiscoong-cloudflare-com.workers.dev/input-target-pro/validate-session";
+    // Auth endpoints — through proxy /auth/*
+    const WORKER_LOGIN_ENDPOINT = BASE_URL + "/auth/verify";
+    const WORKER_VALIDATE_ENDPOINT = BASE_URL + "/auth/validate";
 
     // ========== AUTH FUNCTIONS ==========
 
@@ -1634,12 +1649,9 @@
             return;
         }
         try {
-            const res = await fetch(WORKER_VALIDATE_ENDPOINT, {
+            const res = await apiFetch(WORKER_VALIDATE_ENDPOINT, {
                 method: 'POST',
-                headers: {
-                    'Authorization': 'Bearer ' + token,
-                    'Content-Type': 'application/json'
-                }
+                headers: { 'Content-Type': 'application/json' }
             });
             const data = await res.json();
             if (data.success) {
@@ -1672,7 +1684,7 @@
         errorEl.textContent = '';
 
         try {
-            const res = await fetch(WORKER_LOGIN_ENDPOINT, {
+            const res = await apiFetch(WORKER_LOGIN_ENDPOINT, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password })
@@ -1753,9 +1765,6 @@
         document.getElementById('dateSelect').value = today;
         
         // Load saved config
-        if (localStorage.getItem('mesApiKey')) {
-            document.getElementById('apiKey').value = localStorage.getItem('mesApiKey');
-        }
         if (localStorage.getItem('mesFactory')) {
             document.getElementById('factory').value = localStorage.getItem('mesFactory');
         }
@@ -1989,14 +1998,8 @@
 
     // ========== 5. DATA LOADING FUNCTIONS ==========
     async function loadPackages() {
-        const apiKey = document.getElementById('apiKey').value;
         const factory = document.getElementById('factory').value;
         const dateStr = document.getElementById('dateSelect').value.replace(/-/g, '');
-        
-        if (!apiKey) {
-            Swal.fire('⚠️ API Key trống', 'Vui lòng nhập API Key để tiếp tục!', 'warning');
-            return;
-        }
         
         saveConfig();
         
@@ -2011,7 +2014,7 @@
         document.getElementById('summaryOTCount').textContent = '0';
         
         try {
-            const res = await fetch(`${API_URLS.PACKAGE}?factory=${factory}&fromDate=${dateStr}&apikey=${apiKey}`);
+            const res = await apiFetch(`${API_URLS.PACKAGE}?factory=${factory}&fromDate=${dateStr}`);
             const json = await res.json();
             const rawList = json.data?.packages || json.data || [];
 
@@ -2053,7 +2056,7 @@
             updateSelectAllButton();
             
             // Sync statuses in background
-            syncStatuses(allPackages, apiKey);
+            syncStatuses(allPackages);
 
         } catch (e) {
             console.error('Load packages error:', e);
@@ -2278,7 +2281,7 @@
     }
 
     // ========== 8. SYNC & STATUS FUNCTIONS ==========
-    async function syncStatuses(list, apiKey) {
+    async function syncStatuses(list) {
         const concurrencyLimit = 5;
         let activeRequests = 0;
         let index = 0;
@@ -2291,7 +2294,7 @@
 
             try {
                 // Get actual production data
-                const resMod = await fetch(`${API_URLS.MODULE}?mxpackage=${p.id}&mode=summary&apikey=${apiKey}`);
+                const resMod = await apiFetch(`${API_URLS.MODULE}?mxpackage=${p.id}&mode=summary`);
                 const jsonMod = await resMod.json();
                 
                 let actual = 0;
@@ -2303,7 +2306,7 @@
                 
                 // Check OT status
                 try {
-                    const resOT = await fetch(`${API_URLS.OT}?mxpackage=${p.id}&apikey=${apiKey}`);
+                    const resOT = await apiFetch(`${API_URLS.OT}?mxpackage=${p.id}`);
                     const jsonOT = await resOT.json();
                     if (jsonOT.success && jsonOT.data?.slot_analysis) {
                         p.hasOT = jsonOT.data.slot_analysis.has_ot || false;
@@ -2378,7 +2381,6 @@
 
     // ========== 9. UTILITY FUNCTIONS ==========
     function saveConfig() {
-        localStorage.setItem('mesApiKey', document.getElementById('apiKey').value);
         localStorage.setItem('mesFactory', document.getElementById('factory').value);
     }
 
@@ -2578,10 +2580,10 @@
         };
     }
 
-    async function sendFaCommand(apiKey, packageId, opserial) {
+    async function sendFaCommand(packageId, opserial) {
         try {
-            const url = `${API_URLS.SCANNER}?apikey=${encodeURIComponent(apiKey)}&mxpackage=${encodeURIComponent(packageId)}&mcid=&opserial=${opserial}&processtype=FA`;
-            const response = await fetch(url);
+            const url = `${API_URLS.SCANNER}?mxpackage=${encodeURIComponent(packageId)}&mcid=&opserial=${opserial}&processtype=FA`;
+            const response = await apiFetch(url);
             const isSent = response.ok; 
             return { 
                 success: isSent, 
@@ -2734,7 +2736,6 @@
         let faFailCount = 0;
         const errors = [];
         const totalCount = batchSelected.size;
-        const apiKey = document.getElementById('apiKey').value;
 
         // Reset progress
         updateProgress(0, totalCount, 0, 0, null, null, true);
@@ -2769,12 +2770,9 @@
                     action: 'update'
                 };
                 
-                const res = await fetch(API_URLS.PROD, {
+                const res = await apiFetch(API_URLS.PROD, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-API-Key': apiKey
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
                 
@@ -2787,7 +2785,7 @@
                 // Gửi lệnh FA (mặc định luôn bật)
                 let faResult = null;
                 if (globalFaEnabled) {
-                    faResult = await sendFaCommand(apiKey, pkgId, "1");
+                    faResult = await sendFaCommand(pkgId, "1");
                     if (faResult.success) {
                         faSuccessCount++;
                     } else {
@@ -2830,7 +2828,7 @@
                 document.getElementById(`card-${p.id}`)?.style.display !== 'none'
             );
             renderPackageList(visiblePackages);
-            if (apiKey) syncStatuses(visiblePackages, apiKey);
+            syncStatuses(visiblePackages);
         }, 1000);
     }
 
