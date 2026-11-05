@@ -3,1298 +3,2142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MES Pro - Batch Production Master v3.1</title>
+    <meta name="theme-color" content="#0F172A">
+    <title>MES Production - Batch Mode Pro v3.3</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%231976D2'/%3E%3Cstop offset='1' stop-color='%230D47A1'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='url(%23g)'/%3E%3Cpath d='M13 47V29l11 7V23l11 7V16l16 10v21H13z' fill='%23fff'/%3E%3Cpath d='M18 41h5v6h-5zM27 41h5v6h-5zM36 41h5v6h-5z' fill='%231565C0'/%3E%3C/svg%3E">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
-        /* ========== CSS VARIABLES ========== */
-        :root {
-            --primary: #1565C0;
-            --primary-dark: #0D47A1;
-            --primary-light: #E3F2FD;
-            --primary-gradient: linear-gradient(135deg, #1976D2 0%, #0D47A1 100%);
-            --secondary: #7B1FA2;
-            --secondary-light: #F3E5F5;
-            --secondary-gradient: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);
-            --success: #2E7D32;
-            --success-light: #E8F5E9;
-            --success-gradient: linear-gradient(135deg, #43A047 0%, #2E7D32 100%);
-            --warning: #E65100;
-            --warning-light: #FFF3E0;
-            --warning-gradient: linear-gradient(135deg, #FB8C00 0%, #E65100 100%);
-            --danger: #C62828;
-            --danger-light: #FFEBEE;
-            --danger-gradient: linear-gradient(135deg, #EF5350 0%, #C62828 100%);
-            --info: #0288D1;
-            --info-light: #E1F5FE;
-            --gray-50: #FAFAFA;
-            --gray-100: #F5F5F5;
-            --gray-200: #EEEEEE;
-            --gray-300: #E0E0E0;
-            --gray-400: #BDBDBD;
-            --gray-500: #9E9E9E;
-            --gray-600: #757575;
-            --gray-700: #616161;
-            --gray-800: #424242;
-            --gray-900: #212121;
-            --shadow-xs: 0 1px 2px rgba(0,0,0,0.05);
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
-            --shadow-md: 0 4px 8px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.06);
-            --shadow-lg: 0 10px 25px rgba(0,0,0,0.1), 0 4px 10px rgba(0,0,0,0.05);
-            --shadow-xl: 0 20px 40px rgba(0,0,0,0.12);
-            --shadow-hover: 0 8px 20px rgba(0,0,0,0.1);
-            --radius-sm: 6px;
-            --radius-md: 10px;
-            --radius-lg: 14px;
-            --radius-xl: 18px;
-            --radius-full: 9999px;
-            --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-base: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            --font-sans: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-            --font-mono: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
-        }
-
-        /* ========== RESET & BASE ========== */
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        html { height: 100%; overflow: hidden; }
-
-        body {
-            font-family: var(--font-sans);
-            background: linear-gradient(135deg, #e8eaf6 0%, #c5cae9 50%, #e8eaf6 100%);
-            min-height: 100vh;
-            padding: 14px;
-            color: var(--gray-900);
-            line-height: 1.5;
-            -webkit-font-smoothing: antialiased;
-            overflow-x: hidden;
-            height: 100%;
-        }
-
-        .container {
-            max-width: 1440px;
-            margin: 0 auto;
-            background: white;
-            border-radius: var(--radius-xl);
-            box-shadow: var(--shadow-xl);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            height: calc(100vh - 28px);
-            transition: all var(--transition-base);
-        }
-
-        /* ========== HEADER ========== */
-        .header {
-            background: var(--primary-gradient);
-            padding: 8px 18px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-shrink: 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 8px rgba(13, 71, 161, 0.15);
-        }
-
-        .header-title {
-            font-size: 17px;
-            font-weight: 700;
-            color: white;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            letter-spacing: 0.3px;
-        }
-
-        .header-title i { font-size: 18px; }
-
-        .header-badge {
-            background: rgba(255,255,255,0.2);
-            color: white;
-            padding: 4px 12px;
-            border-radius: var(--radius-full);
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(255,255,255,0.15);
-        }
-
-        .header-manual-btn {
-            background: rgba(255,255,255,0.18);
-            color: white;
-            padding: 5px 12px;
-            border-radius: var(--radius-full);
-            font-size: 11px;
-            font-weight: 700;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: all var(--transition-fast);
-            border: 1px solid rgba(255,255,255,0.2);
-            letter-spacing: 0.3px;
-        }
-
-        .header-manual-btn:hover {
-            background: rgba(255,255,255,0.3);
-            transform: translateY(-1px);
-        }
-
-        /* ========== TOOLBAR - ROW 1 ========== */
-        .compact-toolbar {
-            padding: 10px 16px;
-            background: var(--gray-50);
-            border-bottom: 1px solid var(--gray-200);
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            align-items: center;
-            flex-shrink: 0;
-        }
-
-        .compact-input-group {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .compact-input-group label {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--gray-700);
-            white-space: nowrap;
-            min-width: 44px;
-        }
-
-        .compact-input {
-            padding: 7px 12px;
-            border: 2px solid var(--gray-300);
-            border-radius: var(--radius-sm);
-            font-size: 12px;
-            font-weight: 500;
-            outline: none;
-            transition: all var(--transition-fast);
-            background: white;
-            min-width: 120px;
-            height: 34px;
-        }
-
-        .compact-input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.1);
-        }
-
-        .compact-select {
-            padding: 7px 12px;
-            border: 2px solid var(--gray-300);
-            border-radius: var(--radius-sm);
-            font-size: 12px;
-            font-weight: 500;
-            outline: none;
-            transition: all var(--transition-fast);
-            background: white;
-            min-width: 90px;
-            height: 34px;
-            cursor: pointer;
-        }
-
-        .compact-select:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.1);
-        }
-
-        /* ========== BUTTONS ========== */
-        .btn {
-            padding: 7px 14px;
-            border: none;
-            border-radius: var(--radius-sm);
-            font-weight: 600;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            font-size: 12px;
-            transition: all var(--transition-fast);
-            white-space: nowrap;
-            height: 34px;
-        }
-
-        .btn-primary { background: var(--primary-gradient); color: white; }
-        .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
-        .btn-success { background: var(--success-gradient); color: white; }
-        .btn-success:hover:not(:disabled) { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
-        .btn-warning { background: var(--warning-gradient); color: white; }
-        .btn-warning:hover:not(:disabled) { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
-        .btn-ot { background: var(--secondary-gradient); color: white; }
-        .btn-ot:hover:not(:disabled) { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
-        .btn-secondary { background: var(--gray-200); color: var(--gray-700); }
-        .btn-secondary:hover:not(:disabled) { background: var(--gray-300); }
-        .btn-danger { background: var(--danger-gradient); color: white; }
-        .btn-danger:hover:not(:disabled) { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
-
-        .btn-sm { padding: 5px 10px; font-size: 11px; height: 28px; }
-        .btn-xs { padding: 4px 8px; font-size: 10px; height: 24px; border-radius: var(--radius-sm); }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
-
-        /* ========== ACTION BAR / ROW 2 ========== */
-        .compact-action-bar {
-            padding: 8px 16px;
-            background: white;
-            border-bottom: 1px solid var(--gray-200);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-shrink: 0;
-            flex-wrap: wrap;
-        }
-
-        .compact-action-group {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
-
-        .compact-action-label {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--gray-600);
-            white-space: nowrap;
-        }
-
-        /* ========== SEARCH ========== */
-        .compact-search-group {
-            display: flex;
-            align-items: center;
-            position: relative;
-        }
-
-        .compact-search-input {
-            padding: 7px 12px 7px 34px;
-            border: 2px solid var(--gray-300);
-            border-radius: var(--radius-sm);
-            font-size: 12px;
-            width: 200px;
-            height: 34px;
-            background: white;
-            transition: all var(--transition-fast);
-            outline: none;
-        }
-
-        .compact-search-input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.1);
-            width: 240px;
-        }
-
-        .compact-search-group::before {
-            content: '\f002';
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray-400);
-            font-size: 12px;
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        /* ========== FILTER ========== */
-        .compact-filter-group {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .compact-filter-label {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--gray-600);
-            white-space: nowrap;
-        }
-
-        .compact-filter-select {
-            padding: 5px 8px;
-            border: 2px solid var(--gray-300);
-            border-radius: var(--radius-sm);
-            font-size: 11px;
-            font-weight: 500;
-            outline: none;
-            background: white;
-            min-width: 85px;
-            height: 30px;
-            cursor: pointer;
-            transition: border-color var(--transition-fast);
-        }
-
-        .compact-filter-select:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(21, 101, 192, 0.1);
-        }
-
-        /* ========== PROCESS BUTTON ========== */
-        .compact-process-group {
-            display: flex;
-            align-items: center;
-            margin-left: auto;
-        }
-
-        .btn-process {
-            padding: 7px 18px;
-            border: none;
-            border-radius: var(--radius-sm);
-            background: var(--primary-gradient);
-            color: white;
-            font-weight: 700;
-            font-size: 12px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all var(--transition-fast);
-            white-space: nowrap;
-            height: 34px;
-            letter-spacing: 0.3px;
-        }
-
-        .btn-process:hover:not(:disabled) {
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-hover);
-        }
-
-        .btn-process:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
-
-        .btn-process.pulse {
-            animation: btnPulse 2s infinite;
-        }
-
-        @keyframes btnPulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(25, 118, 210, 0.4); }
-            50% { box-shadow: 0 0 0 8px rgba(25, 118, 210, 0); }
-        }
-
-        /* ========== STATS BAR ========== */
-        .compact-stats-bar {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            margin-left: auto;
-            flex-wrap: wrap;
-        }
-
-        .compact-stat-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 5px 12px;
-            background: white;
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--gray-200);
-            box-shadow: var(--shadow-xs);
-            transition: all var(--transition-fast);
-        }
-
-        .compact-stat-item:hover { border-color: var(--primary-light); }
-
-        .compact-stat-icon {
-            font-size: 14px;
-            color: var(--primary);
-            width: 18px;
-            text-align: center;
-        }
-
-        .compact-stat-value {
-            font-size: 14px;
-            font-weight: 800;
-            color: var(--primary-dark);
-            min-width: 28px;
-            text-align: center;
-            line-height: 1.2;
-        }
-
-        .compact-stat-label {
-            font-size: 9px;
-            color: var(--gray-500);
-            white-space: nowrap;
-            font-weight: 600;
-        }
-
-        .fa-status-indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--success);
-            display: inline-block;
-            margin-left: 2px;
-            box-shadow: 0 0 4px rgba(46, 125, 50, 0.4);
-        }
-
-        .fa-status-indicator.off {
-            background: var(--danger);
-            box-shadow: 0 0 4px rgba(198, 40, 40, 0.4);
-        }
-
-        /* ========== CONTENT LAYOUT ========== */
-        .content-wrapper {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-            position: relative;
-            min-height: 0;
-        }
-
-        .package-list-area {
-            flex: 1;
-            padding: 14px;
-            overflow-y: auto;
-            background: var(--gray-50);
-            position: relative;
-            min-height: 0;
-            width: 100%;
-        }
-
-        /* ========== SUMMARY BANNER ========== */
-        .summary-banner {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            background: linear-gradient(135deg, #F8F9FA 0%, #FFFFFF 100%);
-            padding: 10px 14px;
-            border-radius: var(--radius-md);
-            margin-bottom: 14px;
-            border: 1.5px solid var(--gray-200);
-            box-shadow: var(--shadow-sm);
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            animation: slideDown 0.4s ease;
-        }
-
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-12px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .summary-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 6px 10px;
-            background: var(--gray-50);
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--gray-200);
-        }
-
-        .summary-icon {
-            font-size: 22px;
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: white;
-            border-radius: var(--radius-sm);
-            box-shadow: var(--shadow-xs);
-        }
-
-        .summary-label {
-            font-size: 9px;
-            color: var(--gray-500);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            line-height: 1.2;
-        }
-
-        .summary-value {
-            font-size: 16px;
-            font-weight: 800;
-            color: var(--gray-900);
-            line-height: 1.3;
-        }
-
-        .summary-value b { font-size: 16px; font-weight: 800; }
-        .summary-value span { font-size: 11px; font-weight: 600; color: var(--gray-500); }
-
-        @media (max-width: 768px) {
-            .summary-banner { grid-template-columns: repeat(2, 1fr); gap: 6px; padding: 8px 10px; }
-            .summary-icon { font-size: 18px; width: 30px; height: 30px; }
-            .summary-value { font-size: 14px; }
-            .summary-value b { font-size: 14px; }
-        }
-
-        /* ========== LINE HEADER ========== */
-        .line-header {
-            background: var(--primary-gradient);
-            color: white;
-            padding: 7px 14px;
-            font-weight: 700;
-            border-radius: var(--radius-sm);
-            margin: 16px 0 10px 0;
-            font-size: 13px;
-            letter-spacing: 0.5px;
-            box-shadow: var(--shadow-xs);
-        }
-
-        /* ========== PACKAGE CARD ========== */
-        .package-card {
-            display: grid;
-            grid-template-columns: 75px 1fr 180px 210px;
-            background: white;
-            border: 1.5px solid var(--gray-200);
-            border-radius: var(--radius-md);
-            margin-bottom: 8px;
-            transition: all var(--transition-fast);
-            min-height: 82px;
-            position: relative;
-            cursor: pointer;
-            overflow: hidden;
-            word-break: break-word;
-            box-shadow: var(--shadow-xs);
-        }
-
-        .package-card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-            border-color: var(--primary-light);
-        }
-
-        .package-card.selected {
-            border-color: var(--primary);
-            background: linear-gradient(135deg, #E3F2FD 0%, #F5F5F5 100%);
-            box-shadow: 0 0 0 1.5px var(--primary), var(--shadow-md);
-        }
-
-        .package-card.selected::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 3px;
-            background: var(--primary-gradient);
-        }
-
-        /* Image Column */
-        .col-img {
-            position: relative;
-            background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-right: 1px solid var(--gray-200);
-            overflow: hidden;
-            cursor: pointer;
-        }
-
-        .pkg-img {
-            width: 100%;
-            height: 100%;
-            min-height: 75px;
-            object-fit: cover;
-            transition: all var(--transition-base);
-        }
-
-        .package-card:hover .pkg-img { transform: scale(1.08); }
-
-        /* Hover Preview */
-        .pkg-img-preview {
-            position: fixed;
-            z-index: 10000;
-            background: white;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-xl);
-            overflow: hidden;
-            display: none;
-            pointer-events: none;
-            max-width: 420px;
-            max-height: 520px;
-            border: 3px solid var(--primary);
-        }
-
-        .pkg-img-preview img {
-            width: 100%;
-            height: auto;
-            max-height: 520px;
-            object-fit: contain;
-            display: block;
-        }
-
-        .pkg-img-preview .preview-caption {
-            background: rgba(0,0,0,0.85);
-            color: white;
-            padding: 8px 14px;
-            font-size: 12px;
-            text-align: center;
-            word-break: break-all;
-        }
-
-        /* Info Column */
-        .col-info {
-            padding: 10px 12px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            gap: 3px;
-        }
-
-        .pkg-id {
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--primary);
-            font-family: var(--font-mono);
-            letter-spacing: 0.2px;
-            word-break: break-all;
-        }
-
-        .pkg-style {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--gray-900);
-            line-height: 1.3;
-            word-break: break-word;
-        }
-
-        .tags {
-            display: flex;
-            gap: 5px;
-            flex-wrap: wrap;
-            margin-top: 4px;
-        }
-
-        .tag {
-            font-size: 10px;
-            padding: 3px 10px;
-            border-radius: var(--radius-full);
-            background: var(--gray-100);
-            color: var(--gray-700);
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            white-space: nowrap;
-        }
-
-        .tag-target { background: var(--warning-light); color: var(--warning); font-weight: 700; }
-        .tag-line { background: var(--primary-light); color: var(--primary-dark); }
-        .tag-color { background: var(--secondary-light); color: var(--secondary); max-width: none; overflow: visible; flex-shrink: 0; }
-
-        /* Status Column */
-        .col-status {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            border-left: 1px dashed var(--gray-300);
-            padding: 6px;
-            gap: 3px;
-            position: relative;
-        }
-
-        .status-display {
-            text-align: center;
-            padding: 6px 8px;
-            border-radius: var(--radius-sm);
-            width: 100%;
-            background: rgba(255,255,255,0.9);
-        }
-
-        .qty-fraction {
-            font-size: 18px;
-            font-weight: 800;
-            margin-bottom: 2px;
-        }
-
-        .status-text {
-            font-size: 11px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-
-        .st-done .qty-fraction { color: var(--success); }
-        .st-done .status-text { color: var(--success); }
-        .st-done .status-display { background: rgba(46, 125, 50, 0.08); border: 1px solid rgba(46, 125, 50, 0.15); }
-        .st-miss .qty-fraction { color: var(--warning); }
-        .st-miss .status-text { color: var(--warning); }
-        .st-miss .status-display { background: rgba(230, 81, 0, 0.08); border: 1px solid rgba(230, 81, 0, 0.15); }
-        .st-over .qty-fraction { color: var(--info); }
-        .st-over .status-text { color: var(--info); }
-        .st-over .status-display { background: rgba(2, 136, 209, 0.08); border: 1px solid rgba(2, 136, 209, 0.15); }
-        .st-pend .qty-fraction { color: var(--gray-500); }
-        .st-pend .status-text { color: var(--gray-500); }
-        .st-pend .status-display { background: rgba(158, 158, 158, 0.06); border: 1px solid rgba(158, 158, 158, 0.12); }
-
-        .ot-badge {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--secondary-gradient);
-            color: white;
-            font-size: 12px;
-            padding: 3px 10px;
-            border-radius: var(--radius-full);
-            font-weight: 800;
-            text-transform: uppercase;
-            white-space: nowrap;
-            box-shadow: var(--shadow-xs);
-            letter-spacing: 0.3px;
-            margin-top: 3px;
-        }
-
-        /* Command Center */
-        .col-cmd {
-            padding: 8px 10px;
-            background: var(--gray-50);
-            border-left: 1px solid var(--gray-300);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            gap: 5px;
-            position: relative;
-            transition: all var(--transition-fast);
-        }
-
-        .col-cmd.mode-ot {
-            background: var(--secondary-light);
-            border-left-color: var(--secondary);
-        }
-
-        .col-cmd.disabled-overlay {
-            opacity: 0.6;
-            filter: grayscale(0.7);
-            pointer-events: none;
-        }
-
-        .cmd-checkbox-wrapper {
-            position: absolute;
-            top: 5px;
-            left: 5px;
-            z-index: 2;
-        }
-
-        .cmd-checkbox {
-            width: 15px;
-            height: 15px;
-            cursor: pointer;
-            accent-color: var(--primary);
-            transition: all var(--transition-fast);
-        }
-
-        .segment-control {
-            display: flex;
-            background: var(--gray-200);
-            border-radius: var(--radius-sm);
-            padding: 2px;
-            user-select: none;
-        }
-
-        .segment-btn {
-            flex: 1;
-            border: none;
-            background: transparent;
-            padding: 5px 0;
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--gray-600);
-            cursor: pointer;
-            border-radius: 4px;
-            transition: all var(--transition-fast);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 3px;
-        }
-
-        .segment-btn:hover { background: rgba(255,255,255,0.6); }
-
-        .segment-btn.active {
-            background: white;
-            box-shadow: var(--shadow-xs);
-            color: var(--primary-dark);
-        }
-
-        .segment-btn.active.hc { color: var(--warning); background: var(--warning-light); }
-        .segment-btn.active.ot { color: var(--secondary); background: white; }
-
-        .input-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 4px;
-        }
-
-        .hour-input {
-            width: 48px;
-            padding: 4px;
-            text-align: center;
-            border: 2px solid var(--gray-300);
-            border-radius: var(--radius-sm);
-            font-weight: 700;
-            font-size: 12px;
-            transition: all var(--transition-fast);
-            background: white;
-        }
-
-        .hour-input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.1);
-        }
-
-        .quick-options {
-            display: flex;
-            gap: 4px;
-            width: 100%;
-        }
-
-        .btn-tiny {
-            flex: 1;
-            font-size: 10px;
-            padding: 4px 0;
-            border: 2px solid var(--secondary);
-            color: var(--secondary);
-            background: white;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            transition: all var(--transition-fast);
-            font-weight: 700;
-        }
-
-        .btn-tiny:hover { background: rgba(123, 31, 162, 0.08); }
-        .btn-tiny.active { background: var(--secondary); color: white; box-shadow: var(--shadow-xs); }
-
-        /* ========== MODALS ========== */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6);
-            z-index: 2000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: all var(--transition-base);
-            backdrop-filter: blur(6px);
-            padding: 16px;
-        }
-
-        .modal-overlay.open { opacity: 1; visibility: visible; }
-
-        .modal-box {
-            background: white;
-            width: 100%;
-            max-width: 620px;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-xl);
-            display: flex;
-            flex-direction: column;
-            max-height: 85vh;
-            overflow: hidden;
-            transform: translateY(-20px) scale(0.96);
-            transition: all var(--transition-base);
-        }
-
-        .modal-overlay.open .modal-box { transform: translateY(0) scale(1); }
-
-        .modal-header {
-            padding: 14px 18px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--primary-gradient);
-            color: white;
-            flex-shrink: 0;
-        }
-
-        .modal-header h3 { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-
-        .modal-body {
-            padding: 16px;
-            overflow-y: auto;
-            flex: 1;
-            min-height: 0;
-        }
-
-        .modal-footer {
-            padding: 12px 16px;
-            border-top: 1px solid var(--gray-200);
-            display: flex;
-            gap: 8px;
-            justify-content: flex-end;
-            flex-shrink: 0;
-        }
-
-        .progress-modal .modal-box { max-width: 600px; }
-
-        /* ========== PROGRESS ========== */
-        .progress-container {
-            margin: 12px 0;
-            padding: 16px;
-            background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
-            border-radius: var(--radius-md);
-            border: 1.5px solid #90CAF9;
-            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.12);
-        }
-
-        .progress-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .progress-text { font-size: 12px; font-weight: 700; color: var(--primary-dark); }
-        .progress-percentage { font-size: 18px; font-weight: 800; color: var(--primary); }
-
-        .progress-bar-wrapper {
-            width: 100%;
-            height: 26px;
-            background: white;
-            border-radius: var(--radius-full);
-            overflow: hidden;
-            position: relative;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.08);
-        }
-
-        .progress-bar-fill {
-            height: 100%;
-            background: var(--primary-gradient);
-            border-radius: var(--radius-full);
-            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 700;
-            font-size: 11px;
-            min-width: 0;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .progress-bar-fill::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            animation: shimmer 1.8s infinite;
-        }
-
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-
-        .progress-details {
-            margin-top: 8px;
-            font-size: 11px;
-            color: var(--primary-dark);
-            display: flex;
-            justify-content: space-between;
-            font-weight: 600;
-        }
-
-        .progress-current-item {
-            font-size: 10px;
-            color: var(--primary);
-            margin-top: 6px;
-            font-style: italic;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            background: rgba(255,255,255,0.7);
-            padding: 4px 8px;
-            border-radius: var(--radius-sm);
-        }
-
-        /* ========== LOADER & UTILS ========== */
-        .loader {
-            width: 18px;
-            height: 18px;
-            border: 2.5px solid var(--gray-300);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-        }
-
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .hidden { display: none !important; }
-
-        /* ========== AUTH OVERLAY ========== */
-        .auth-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(12px);
-            z-index: 99999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.4s ease;
-        }
-
-        .auth-overlay.open { opacity: 1; visibility: visible; }
-
-        .auth-card {
-            background: white;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-xl);
-            width: 100%;
-            max-width: 400px;
-            overflow: hidden;
-            transform: scale(0.9) translateY(20px);
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .auth-overlay.open .auth-card { transform: scale(1) translateY(0); }
-
-        .auth-header {
-            background: var(--primary-gradient);
-            color: white;
-            padding: 22px 20px;
-            text-align: center;
-            font-size: 19px;
-            font-weight: 700;
-            letter-spacing: 0.3px;
-        }
-
-        .auth-body { padding: 32px 28px; text-align: center; }
-
-        .auth-icon {
-            font-size: 52px;
-            color: var(--primary);
-            margin-bottom: 12px;
-        }
-
-        .auth-body h3 {
-            font-size: 21px;
-            font-weight: 800;
-            color: var(--gray-900);
-            margin-bottom: 6px;
-        }
-
-        .auth-body p {
-            font-size: 14px;
-            color: var(--gray-500);
-            margin-bottom: 24px;
-        }
-
-        .auth-input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-            margin-bottom: 20px;
-        }
-
-        .auth-input-group input {
-            padding: 12px 16px;
-            border: 2px solid var(--gray-300);
-            border-radius: var(--radius-sm);
-            font-size: 14px;
-            outline: none;
-            transition: all var(--transition-fast);
-            width: 100%;
-            background: var(--gray-50);
-        }
-
-        .auth-input-group input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.1);
-            background: white;
-        }
-
-        .auth-btn {
-            width: 100%;
-            padding: 13px;
-            background: var(--primary-gradient);
-            color: white;
-            border: none;
-            border-radius: var(--radius-sm);
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all var(--transition-fast);
-            letter-spacing: 0.3px;
-        }
-
-        .auth-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
-        .auth-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-
-        .auth-error {
-            color: var(--danger);
-            font-size: 13px;
-            font-weight: 600;
-            margin-top: 12px;
-            min-height: 20px;
-        }
-
-        .auth-loading {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2.5px solid rgba(255,255,255,0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            vertical-align: middle;
-            margin-right: 6px;
-        }
-
-        .btn-logout {
-            background: rgba(255,255,255,0.18);
-            color: white;
-            padding: 5px 12px;
-            border-radius: var(--radius-full);
-            font-size: 11px;
-            font-weight: 700;
-            border: 1px solid rgba(255,255,255,0.2);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: all var(--transition-fast);
-            letter-spacing: 0.3px;
-        }
-
-        .btn-logout:hover {
-            background: rgba(255,255,255,0.3);
-            transform: translateY(-1px);
-        }
-
-        /* ========== PRINT ========== */
-        @media print {
-            .compact-toolbar, .compact-action-bar, .compact-stats-bar,
-            .modal-overlay, .btn, .btn-process, .header { display: none !important; }
-            .package-list-area { width: 100%; padding: 0; }
-            .container { height: auto; box-shadow: none; border-radius: 0; }
-        }
-
-        /* ========== RESPONSIVE - 1200px ========== */
-        @media (max-width: 1200px) {
-            .package-card { grid-template-columns: 65px 1fr 140px 180px; }
-            .compact-search-input { width: 160px; }
-            .compact-search-input:focus { width: 180px; }
-            .compact-stats-bar { gap: 6px; }
-            .compact-stat-item { padding: 4px 10px; }
-        }
-
-        /* ========== RESPONSIVE - 1024px ========== */
-        @media (max-width: 1024px) {
-            .container { height: calc(100vh - 14px); }
-            body { padding: 7px; }
-        }
-
-        /* ========== RESPONSIVE - 900px ========== */
-        @media (max-width: 900px) {
-            .package-card { grid-template-columns: 55px 1fr 120px 170px; }
-            .compact-toolbar { flex-direction: column; align-items: stretch; gap: 6px; }
-            .compact-stats-bar { margin-left: 0; justify-content: center; width: 100%; }
-            .compact-action-bar { flex-wrap: wrap; gap: 8px; }
-            .compact-search-group { order: 2; width: 100%; }
-            .compact-search-input { width: 100% !important; }
-            .compact-filter-group { order: 1; width: 100%; justify-content: flex-start; }
-            .compact-process-group { order: 3; width: 100%; justify-content: center; margin-left: 0; }
-            .btn-process { width: 100%; justify-content: center; }
-        }
-
-        /* ========== RESPONSIVE - 768px ========== */
-        @media (max-width: 768px) {
-            body { padding: 0; }
-            .container { height: 100vh; border-radius: 0; }
-            .header { padding: 8px 12px; flex-direction: column; gap: 6px; text-align: center; }
-            .header-title { font-size: 15px; justify-content: center; }
-            .header-manual-btn, .btn-logout { font-size: 10px; padding: 4px 10px; }
-            .compact-toolbar { padding: 8px 12px; }
-            .compact-input-group { flex: 1; }
-            .compact-stats-bar { justify-content: space-between; width: 100%; gap: 6px; }
-            .compact-stat-item { flex: 1; min-width: 55px; justify-content: center; padding: 4px 8px; }
-            .compact-stat-value { font-size: 12px; min-width: auto; }
-            .compact-stat-label { font-size: 8px; }
-            .compact-action-bar { flex-direction: column; align-items: stretch; gap: 8px; }
-            .compact-search-group, .compact-process-group, .compact-filter-group { margin-left: 0; width: 100%; }
-            .compact-search-input { width: 100% !important; }
-            .compact-search-input:focus { width: 100% !important; }
-            .btn-process { width: 100%; justify-content: center; }
-            .package-card {
-                grid-template-columns: 42px 1fr;
-                grid-template-rows: auto auto;
-                min-height: auto;
-            }
-            .col-cmd { grid-column: 1 / -1; border-left: none; border-top: 1px solid var(--gray-200); }
-            .col-status { grid-row: 1; grid-column: 2; border-left: none; border-bottom: 1px solid var(--gray-200); }
-            .modal-overlay { padding: 10px; }
-            .modal-box { max-height: 90vh; }
-            .progress-modal .modal-box { max-width: 95%; }
-            .tag-color { white-space: normal; word-break: break-word; max-width: 100px; }
-        }
-
-        /* ========== RESPONSIVE - 480px ========== */
-        @media (max-width: 480px) {
-            .container { height: 100vh; border-radius: 0; margin: 0; }
-            body { padding: 0; }
-            .package-list-area { padding: 8px; }
-            .compact-stat-item { flex-direction: column; padding: 3px 6px; min-height: 42px; }
-            .compact-stat-value { font-size: 11px; }
-            .compact-stat-label { font-size: 7px; }
-            .compact-filter-group { flex-wrap: wrap; }
-            .compact-filter-select { flex: 1; min-width: 70px; }
-            .package-card { grid-template-columns: 1fr; grid-template-rows: auto auto auto auto; }
-            .col-img { grid-row: 1; height: 80px; }
-            .col-info { grid-row: 2; }
-            .col-status { grid-row: 3; grid-column: 1; }
-            .col-cmd { grid-row: 4; }
-            .modal-body { padding: 10px; }
-            .progress-modal .modal-box { max-width: 100%; border-radius: 0; }
-        }
-
-        /* ========== TOUCH FIX ========== */
-        @media (hover: none) and (pointer: coarse) {
-            .btn, .segment-btn, .btn-tiny, .btn-process { min-height: 44px; min-width: 44px; }
-            .cmd-checkbox { min-width: 20px; min-height: 20px; }
-            .hour-input { min-height: 44px; font-size: 16px; }
-            .compact-input, .compact-select, .compact-filter-select { min-height: 44px; font-size: 16px; }
-            .compact-search-input { min-height: 44px; }
-            .package-card { min-height: 100px; }
-        }
+/* ============================================================
+   MES PRODUCTION - BATCH MODE PRO (MODERN ENTERPRISE SYSTEM v3.3)
+   ============================================================ */
+
+:root {
+    /* Primary Brand - Deep Royal Blue */
+    --primary: #1D63ED;
+    --primary-hover: #154EC2;
+    --primary-dark: #0F358C;
+    --primary-50: #EFF6FF;
+    --primary-100: #DBEAFE;
+    --primary-200: #BFDBFE;
+    --primary-600: #2563EB;
+    --primary-700: #1D4ED8;
+
+    /* Slate Neutral Palette */
+    --slate-25: #FCFDFE;
+    --slate-50: #F8FAFC;
+    --slate-100: #F1F5F9;
+    --slate-200: #E2E8F0;
+    --slate-300: #CBD5E1;
+    --slate-400: #94A3B8;
+    --slate-500: #64748B;
+    --slate-600: #475569;
+    --slate-700: #334155;
+    --slate-800: #1E293B;
+    --slate-900: #0F172A;
+
+    /* Status & Semantic Colors */
+    --emerald-50: #ECFDF5;
+    --emerald-100: #D1FAE5;
+    --emerald-200: #A7F3D0;
+    --emerald-500: #10B981;
+    --emerald-600: #059669;
+    --emerald-700: #047857;
+
+    --amber-50: #FFFBEB;
+    --amber-100: #FEF3C7;
+    --amber-200: #FDE68A;
+    --amber-500: #F59E0B;
+    --amber-600: #D97706;
+    --amber-700: #B45309;
+
+    --rose-50: #FEF2F2;
+    --rose-100: #FEE2E2;
+    --rose-200: #FECACA;
+    --rose-500: #EF4444;
+    --rose-600: #DC2626;
+    --rose-700: #B91C1C;
+
+    --sky-50: #F0F9FF;
+    --sky-100: #E0F2FE;
+    --sky-200: #BAE6FD;
+    --sky-500: #0EA5E9;
+    --sky-600: #0284C7;
+    --sky-700: #0369A1;
+
+    --violet-50: #F5F3FF;
+    --violet-100: #EDE9FE;
+    --violet-200: #DDD6FE;
+    --violet-500: #8B5CF6;
+    --violet-600: #7C3AED;
+    --violet-700: #6D28D9;
+
+    /* Radii */
+    --radius-xs: 4px;
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-full: 9999px;
+
+    /* Elevations & Shadows */
+    --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+    --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+    --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+    --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.09), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+    --shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.12), 0 8px 10px -6px rgba(15, 23, 42, 0.05);
+
+    /* Typography */
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --font-mono: 'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
+    --transition-fast: 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-base: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ========== RESET & BASE ========== */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html {
+    height: 100%;
+    overflow: hidden;
+    font-size: 14px;
+}
+
+body {
+    font-family: var(--font-sans);
+    font-feature-settings: 'tnum' on, 'cv02', 'cv03', 'cv04';
+    background: #EDF2F7;
+    min-height: 100vh;
+    height: 100%;
+    padding: 8px 12px;
+    color: var(--slate-800);
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+}
+
+.container {
+    max-width: 1560px;
+    margin: 0 auto;
+    background: #FFFFFF;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--slate-200);
+    box-shadow: var(--shadow-xl);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 16px);
+}
+
+/* ========== HEADER ========== */
+.header {
+    background: var(--slate-900);
+    padding: 9px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.header-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.brand-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, #2563EB, #1D4ED8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 15px;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.4);
+}
+
+.header-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: -0.2px;
+}
+
+.header-badge-tag {
+    background: rgba(37, 99, 235, 0.25);
+    color: #93C5FD;
+    border: 1px solid rgba(59, 130, 246, 0.4);
+    padding: 2px 7px;
+    border-radius: var(--radius-sm);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.header-fa {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #E2E8F0;
+    font-size: 11px;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    white-space: nowrap;
+}
+
+.fa-status-indicator {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--emerald-500);
+    display: inline-block;
+    box-shadow: 0 0 6px rgba(16, 185, 129, 0.8);
+    animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.7; }
+}
+
+.fa-status-indicator.off {
+    background: var(--rose-500);
+    box-shadow: 0 0 6px rgba(239, 68, 68, 0.6);
+    animation: none;
+}
+
+.header-manual-btn {
+    background: rgba(255, 255, 255, 0.08);
+    color: #E2E8F0;
+    padding: 5px 12px;
+    border-radius: var(--radius-md);
+    font-size: 11px;
+    font-weight: 600;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all var(--transition-fast);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.header-manual-btn:hover {
+    background: rgba(255, 255, 255, 0.16);
+    color: white;
+    border-color: rgba(255, 255, 255, 0.25);
+    transform: translateY(-1px);
+}
+
+.btn-logout {
+    background: rgba(239, 68, 68, 0.15);
+    color: #FCA5A5;
+    padding: 5px 11px;
+    border-radius: var(--radius-md);
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all var(--transition-fast);
+}
+
+.btn-logout:hover {
+    background: var(--rose-600);
+    color: white;
+    border-color: var(--rose-600);
+}
+
+/* ========== CONTROL PANEL (COMMAND BAR) ========== */
+.control-panel {
+    background: #FFFFFF;
+    border-bottom: 1px solid var(--slate-200);
+    flex-shrink: 0;
+}
+
+.control-row {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    gap: 12px;
+}
+
+.control-row-main {
+    justify-content: space-between;
+    border-bottom: 1px solid var(--slate-100);
+    background: var(--slate-25);
+}
+
+.toolbar-inputs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.compact-input-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: white;
+    border: 1px solid var(--slate-300);
+    border-radius: var(--radius-md);
+    padding: 2px 8px;
+    height: 36px;
+    box-shadow: var(--shadow-xs);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.compact-input-group:focus-within {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.compact-input-group label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--slate-500);
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.compact-select, .compact-input {
+    border: none;
+    background: transparent;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--slate-800);
+    outline: none;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.compact-select {
+    padding-right: 4px;
+}
+
+.compact-input {
+    padding: 0 2px;
+    cursor: text;
+}
+
+/* Buttons */
+.btn {
+    height: 36px;
+    padding: 0 14px;
+    border-radius: var(--radius-md);
+    border: none;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all var(--transition-fast);
+    white-space: nowrap;
+    user-select: none;
+}
+
+.btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 1px 3px rgba(29, 99, 237, 0.3);
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: var(--primary-hover);
+    box-shadow: 0 3px 8px rgba(29, 99, 237, 0.35);
+    transform: translateY(-1px);
+}
+
+.btn-success {
+    background: var(--emerald-600);
+    color: white;
+    box-shadow: 0 1px 3px rgba(5, 150, 105, 0.3);
+}
+
+.btn-success:hover:not(:disabled) {
+    background: var(--emerald-700);
+    box-shadow: 0 3px 8px rgba(5, 150, 105, 0.35);
+}
+
+.btn-warning {
+    background: #F59E0B;
+    color: white;
+    box-shadow: 0 1px 2px rgba(245, 158, 11, 0.25);
+}
+
+.btn-warning:hover:not(:disabled) {
+    background: #D97706;
+}
+
+.btn-ot {
+    background: var(--violet-600);
+    color: white;
+    box-shadow: 0 1px 2px rgba(124, 58, 237, 0.25);
+}
+
+.btn-ot:hover:not(:disabled) {
+    background: var(--violet-700);
+}
+
+.btn-secondary {
+    background: var(--slate-100);
+    color: var(--slate-700);
+    border: 1px solid var(--slate-200);
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background: var(--slate-200);
+    color: var(--slate-900);
+}
+
+.btn-outline {
+    background: white;
+    color: var(--slate-700);
+    border: 1px solid var(--slate-300);
+    box-shadow: var(--shadow-xs);
+}
+
+.btn-outline:hover:not(:disabled) {
+    background: var(--slate-50);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+
+.toolbar-divider {
+    width: 1px;
+    height: 20px;
+    background: var(--slate-300);
+    margin: 0 4px;
+}
+
+.btn-top-process {
+    background: linear-gradient(135deg, #10B981, #059669);
+    color: white;
+    font-weight: 700;
+    box-shadow: 0 1px 3px rgba(5, 150, 105, 0.3);
+    padding: 0 12px;
+}
+
+.btn-top-process:hover:not(:disabled) {
+    background: linear-gradient(135deg, #059669, #047857);
+    box-shadow: 0 3px 8px rgba(5, 150, 105, 0.4);
+    transform: translateY(-1px);
+}
+
+.btn-outline-danger {
+    background: white;
+    color: var(--rose-600);
+    border: 1px solid var(--rose-300);
+}
+
+.btn-outline-danger:hover:not(:disabled) {
+    background: var(--rose-50);
+    border-color: var(--rose-500);
+    color: var(--rose-700);
+}
+
+.badge-count {
+    background: rgba(255, 255, 255, 0.25);
+    color: white;
+    padding: 1px 6px;
+    border-radius: var(--radius-full);
+    font-size: 10px;
+    font-weight: 800;
+    margin-left: 2px;
+}
+
+.btn-xs {
+    height: 30px;
+    padding: 0 10px;
+    font-size: 11px;
+    border-radius: var(--radius-sm);
+}
+
+.btn-sm {
+    height: 32px;
+    padding: 0 12px;
+    font-size: 11.5px;
+}
+
+/* KPI Master Bar */
+.kpi-bar {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.kpi-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 5px 12px;
+    border: 1px solid var(--slate-200);
+    border-radius: var(--radius-md);
+    background: white;
+    min-height: 42px;
+    box-shadow: var(--shadow-xs);
+    transition: all var(--transition-fast);
+}
+
+.kpi-item:hover {
+    border-color: var(--slate-300);
+    box-shadow: var(--shadow-sm);
+}
+
+.kpi-icon-wrap {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-sm);
+    background: var(--slate-100);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.kpi-icon {
+    font-size: 13px;
+    color: var(--slate-600);
+}
+
+.kpi-item-selected {
+    background: #F8FAFF;
+    border-color: var(--primary-200);
+}
+
+.kpi-item-selected .kpi-icon-wrap {
+    background: var(--primary-100);
+}
+
+.kpi-item-selected .kpi-icon {
+    color: var(--primary-600);
+}
+
+.kpi-item-ot {
+    background: #FDFBFF;
+    border-color: var(--violet-200);
+}
+
+.kpi-item-ot .kpi-icon-wrap {
+    background: var(--violet-100);
+}
+
+.kpi-item-ot .kpi-icon {
+    color: var(--violet-600);
+}
+
+.kpi-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.kpi-value {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--slate-900);
+    line-height: 1.15;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.kpi-label {
+    font-size: 9.5px;
+    font-weight: 600;
+    color: var(--slate-500);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+}
+
+.kpi-sub {
+    font-size: 8.5px;
+    font-weight: 700;
+    color: var(--violet-700);
+    white-space: nowrap;
+}
+
+.stat-divider {
+    color: var(--slate-300);
+    font-weight: 400;
+    margin: 0 2px;
+}
+
+.stat-total {
+    color: var(--slate-500);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* Control Row 2: Filters, Search, Bulk Actions */
+.control-row-sub {
+    justify-content: space-between;
+    padding: 7px 16px;
+    gap: 12px;
+    background: white;
+    flex-wrap: wrap;
+}
+
+.filter-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.control-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--slate-500);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-right: 2px;
+    white-space: nowrap;
+}
+
+.compact-filter-select {
+    height: 32px;
+    padding: 0 8px;
+    border: 1px solid var(--slate-300);
+    border-radius: var(--radius-sm);
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--slate-700);
+    background: white;
+    outline: none;
+    cursor: pointer;
+    box-shadow: var(--shadow-xs);
+    transition: all var(--transition-fast);
+    min-width: 95px;
+}
+
+.compact-filter-select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
+}
+
+.filter-result {
+    font-size: 11px;
+    color: var(--slate-500);
+    font-weight: 500;
+    background: var(--slate-100);
+    padding: 3px 8px;
+    border-radius: var(--radius-full);
+    white-space: nowrap;
+}
+
+.filter-result b {
+    color: var(--slate-900);
+    font-weight: 700;
+}
+
+.compact-search-group {
+    position: relative;
+    flex: 1;
+    max-width: 300px;
+    min-width: 180px;
+}
+
+.compact-search-input {
+    width: 100%;
+    height: 32px;
+    padding: 0 12px 0 32px;
+    border: 1px solid var(--slate-300);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    outline: none;
+    background: var(--slate-50);
+    color: var(--slate-800);
+    transition: all var(--transition-fast);
+    box-shadow: var(--shadow-xs);
+}
+
+.compact-search-input:focus {
+    background: white;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.compact-search-group::before {
+    content: '\f002';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--slate-400);
+    font-size: 12px;
+    pointer-events: none;
+}
+
+.bulk-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+/* ========== CONTENT AREA & MASTER TELEMETRY STRIP ========== */
+.content-wrapper {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    min-height: 0;
+    background: var(--slate-100);
+}
+
+.package-list-area {
+    flex: 1;
+    padding: 12px 16px;
+    overflow-y: auto;
+    position: relative;
+    min-height: 0;
+    width: 100%;
+}
+
+/* Master Progress Telemetry Strip */
+.data-strip {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 8px 14px;
+    margin-bottom: 12px;
+    background: #FFFFFF;
+    border: 1px solid var(--slate-200);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-xs);
+    backdrop-filter: blur(8px);
+}
+
+.data-strip-items {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    min-width: 0;
+}
+
+.data-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--slate-600);
+    white-space: nowrap;
+}
+
+.data-pill i {
+    color: var(--primary);
+    font-size: 12px;
+}
+
+.data-pill b {
+    color: var(--slate-900);
+    font-size: 13.5px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.data-pill.ot i {
+    color: var(--violet-600);
+}
+
+.data-pill .data-muted {
+    color: var(--slate-500);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.data-progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.data-progress {
+    width: 160px;
+    height: 7px;
+    background: var(--slate-200);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.data-progress-fill {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #10B981, #059669);
+    border-radius: var(--radius-full);
+    transition: width 0.4s ease;
+}
+
+/* ========== LINE HEADER ========== */
+.line-header {
+    background: #FFFFFF;
+    border: 1px solid var(--slate-200);
+    border-left: 4px solid var(--primary);
+    padding: 7px 12px;
+    border-radius: var(--radius-md);
+    margin: 12px 0 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: var(--shadow-xs);
+}
+
+.line-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    min-width: 0;
+}
+
+.line-header-title {
+    font-size: 12.5px;
+    font-weight: 800;
+    color: var(--slate-900);
+    letter-spacing: 0.3px;
+}
+
+.line-header-count {
+    color: var(--slate-600);
+    background: var(--slate-100);
+    border: 1px solid var(--slate-200);
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 2px 9px;
+    border-radius: var(--radius-full);
+    white-space: nowrap;
+}
+
+.line-checkbox {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid var(--slate-400);
+    border-radius: 4px;
+    background: white;
+    cursor: pointer;
+    position: relative;
+    flex-shrink: 0;
+    transition: all var(--transition-fast);
+}
+
+.line-checkbox:hover {
+    border-color: var(--primary);
+    background: var(--primary-50);
+}
+
+.line-checkbox:checked, .line-checkbox:indeterminate {
+    background: var(--primary);
+    border-color: var(--primary);
+}
+
+.line-checkbox:checked::after {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 2px;
+    width: 4px;
+    height: 8px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.line-checkbox:indeterminate::after {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 6px;
+    width: 8px;
+    height: 2px;
+    background: white;
+    border-radius: 1px;
+}
+
+/* ========== PACKAGE CARD ========== */
+.package-card {
+    background: #FFFFFF;
+    border: 1px solid var(--slate-200);
+    border-radius: var(--radius-md);
+    margin-bottom: 7px;
+    box-shadow: var(--shadow-xs);
+    transition: all var(--transition-fast);
+    position: relative;
+    overflow: hidden;
+    word-break: break-word;
+}
+
+.package-card:hover {
+    border-color: #93C5FD;
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+}
+
+.package-card.selected {
+    border-color: var(--primary-600);
+    background: #F8FAFF;
+    box-shadow: 0 0 0 1px var(--primary-600), var(--shadow-sm);
+}
+
+.package-card.selected::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--primary);
+    border-top-left-radius: var(--radius-md);
+    border-bottom-left-radius: var(--radius-md);
+    z-index: 2;
+}
+
+.card-main {
+    display: grid;
+    grid-template-columns: 38px 58px minmax(0, 1fr) 190px 175px;
+    align-items: center;
+    min-height: 72px;
+    padding: 6px 12px;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.col-select {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cmd-checkbox {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 1.5px solid var(--slate-400);
+    border-radius: 5px;
+    background: white;
+    cursor: pointer;
+    position: relative;
+    flex-shrink: 0;
+    transition: all var(--transition-fast);
+}
+
+.cmd-checkbox:hover {
+    border-color: var(--primary);
+    background: var(--primary-50);
+}
+
+.cmd-checkbox:checked {
+    background: var(--primary);
+    border-color: var(--primary);
+}
+
+.cmd-checkbox:checked::after {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+/* Thumbnail Image */
+.col-img {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--slate-200);
+    background: var(--slate-100);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    cursor: pointer;
+    position: relative;
+}
+
+.pkg-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-base);
+}
+
+.package-card:hover .pkg-img {
+    transform: scale(1.08);
+}
+
+/* Info Column */
+.col-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    min-width: 0;
+}
+
+.pkg-top-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.pkg-id {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--primary-700);
+    font-family: var(--font-mono);
+    letter-spacing: 0.2px;
+    word-break: break-all;
+}
+
+.pkg-style {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--slate-900);
+    line-height: 1.3;
+    word-break: break-word;
+}
+
+.tags {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-top: 3px;
+}
+
+.tag {
+    font-size: 9.5px;
+    padding: 2px 7px;
+    border-radius: var(--radius-full);
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+
+.tag-line {
+    background: var(--primary-50);
+    color: var(--primary-700);
+    border: 1px solid var(--primary-200);
+}
+
+.tag-target {
+    background: var(--amber-50);
+    color: var(--amber-700);
+    border: 1px solid var(--amber-200);
+}
+
+.tag-color {
+    background: var(--violet-50);
+    color: var(--violet-700);
+    border: 1px solid var(--violet-200);
+}
+
+.tag-buyer {
+    background: var(--slate-100);
+    color: var(--slate-700);
+    border: 1px solid var(--slate-200);
+}
+
+/* Status Column */
+.col-status {
+    border-left: 1px solid var(--slate-200);
+    padding: 4px 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    min-width: 0;
+}
+
+.status-display {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.qty-fraction {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px;
+    font-variant-numeric: tabular-nums;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--slate-900);
+}
+
+.qty-fraction .qty-actual {
+    font-size: 15px;
+    font-weight: 800;
+}
+
+.qty-fraction .qty-sep {
+    color: var(--slate-400);
+    font-size: 11px;
+    margin: 0 1px;
+}
+
+.qty-fraction .qty-target {
+    color: var(--slate-600);
+    font-size: 13px;
+}
+
+.qty-fraction .qty-pct {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--slate-500);
+    margin-left: auto;
+}
+
+/* Card Mini Progress Bar */
+.card-mini-bar {
+    width: 100%;
+    height: 4px;
+    background: var(--slate-200);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    margin: 3px 0 2px;
+}
+
+.card-mini-bar-fill {
+    height: 100%;
+    border-radius: var(--radius-full);
+    transition: width 0.3s ease;
+    background: var(--slate-400);
+}
+
+.status-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    margin-top: 1px;
+}
+
+.status-text {
+    font-size: 9.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    padding: 1px 6px;
+    border-radius: var(--radius-xs);
+    display: inline-block;
+}
+
+/* Status Tones */
+.st-done .qty-fraction .qty-actual { color: var(--emerald-600); }
+.st-done .qty-fraction .qty-pct { color: var(--emerald-600); }
+.st-done .card-mini-bar-fill { background: var(--emerald-500); }
+.st-done .status-text { background: var(--emerald-50); color: var(--emerald-700); border: 1px solid var(--emerald-200); }
+
+.st-miss .qty-fraction .qty-actual { color: var(--amber-600); }
+.st-miss .qty-fraction .qty-pct { color: var(--amber-600); }
+.st-miss .card-mini-bar-fill { background: var(--amber-500); }
+.st-miss .status-text { background: var(--amber-50); color: var(--amber-700); border: 1px solid var(--amber-200); }
+
+.st-over .qty-fraction .qty-actual { color: var(--sky-600); }
+.st-over .qty-fraction .qty-pct { color: var(--sky-600); }
+.st-over .card-mini-bar-fill { background: var(--sky-500); }
+.st-over .status-text { background: var(--sky-50); color: var(--sky-700); border: 1px solid var(--sky-200); }
+
+.st-pend .qty-fraction .qty-actual { color: var(--slate-500); }
+.st-pend .qty-fraction .qty-pct { color: var(--slate-400); }
+.st-pend .card-mini-bar-fill { background: var(--slate-300); }
+.st-pend .status-text { background: var(--slate-100); color: var(--slate-600); border: 1px solid var(--slate-200); }
+
+.ot-badge {
+    background: var(--violet-50);
+    color: var(--violet-700);
+    border: 1px solid var(--violet-200);
+    font-size: 9.5px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: var(--radius-xs);
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    white-space: nowrap;
+}
+
+.status-loading-skeleton {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--slate-500);
+    font-weight: 600;
+    padding: 8px 0;
+}
+
+/* Shift Column */
+.col-shift {
+    border-left: 1px solid var(--slate-200);
+    padding: 4px 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    gap: 4px;
+}
+
+.shift-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid var(--slate-300);
+    border-radius: var(--radius-sm);
+    background: white;
+    color: var(--slate-700);
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    box-shadow: var(--shadow-xs);
+}
+
+.shift-toggle:hover {
+    border-color: var(--primary);
+    background: var(--primary-50);
+    color: var(--primary-700);
+}
+
+.shift-toggle.is-ot {
+    background: var(--violet-50);
+    border-color: var(--violet-200);
+    color: var(--violet-700);
+}
+
+.shift-toggle i {
+    font-size: 9px;
+    transition: transform var(--transition-base);
+    color: var(--slate-400);
+}
+
+.package-card.config-open .shift-toggle i {
+    transform: rotate(180deg);
+}
+
+.shift-hint {
+    font-size: 9.5px;
+    color: var(--slate-400);
+    text-align: center;
+    line-height: 1.2;
+}
+
+/* Expandable Card Config Drawer - Positioned to the RIGHT */
+.card-config {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    background: var(--slate-50);
+    border-top: 1px solid var(--slate-200);
+    cursor: default;
+}
+
+.package-card.config-open .card-config {
+    display: flex;
+    animation: fadeIn 0.15s ease;
+}
+
+.card-config.disabled-overlay {
+    opacity: 0.65;
+    filter: grayscale(0.6);
+    pointer-events: none;
+}
+
+.card-config-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: auto; /* Aligns controls to the RIGHT directly under shift dropdown */
+}
+
+/* Shift Picker Dropdown */
+.shift-picker-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+}
+
+.shift-quick-select {
+    flex: 1;
+    height: 32px;
+    padding: 0 6px;
+    border: 1px solid var(--slate-300);
+    border-radius: var(--radius-sm);
+    background: white;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--slate-700);
+    outline: none;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: var(--shadow-xs);
+    transition: all var(--transition-fast);
+}
+
+.shift-quick-select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
+}
+
+.shift-quick-select.is-ot {
+    background: var(--violet-50);
+    border-color: var(--violet-200);
+    color: var(--violet-700);
+}
+
+.shift-toggle-btn {
+    width: 28px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--slate-300);
+    border-radius: var(--radius-sm);
+    background: white;
+    color: var(--slate-500);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    flex-shrink: 0;
+}
+
+.shift-toggle-btn:hover {
+    border-color: var(--primary);
+    background: var(--primary-50);
+    color: var(--primary-700);
+}
+
+.package-card.config-open .shift-toggle-btn i {
+    transform: rotate(180deg);
+}
+
+.shift-toggle-btn i {
+    font-size: 10px;
+    transition: transform var(--transition-base);
+}
+
+/* Card Config Drawer - Positioned on the RIGHT side underneath */
+.card-config {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    background: var(--slate-50);
+    border-top: 1px solid var(--slate-200);
+    cursor: default;
+}
+
+.package-card.config-open .card-config {
+    display: flex;
+    animation: fadeIn 0.15s ease;
+}
+
+.card-config.disabled-overlay {
+    opacity: 0.65;
+    filter: grayscale(0.6);
+    pointer-events: none;
+}
+
+.card-config-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: auto; /* Aligned strictly to the RIGHT */
+}
+
+
+.config-field {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.config-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--slate-500);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    white-space: nowrap;
+}
+
+.segment-control {
+    display: flex;
+    background: var(--slate-200);
+    border-radius: var(--radius-sm);
+    padding: 2px;
+    user-select: none;
+    min-width: 140px;
+}
+
+.segment-btn {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 4px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--slate-600);
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-family: inherit;
+}
+
+.segment-btn:hover {
+    background: rgba(255, 255, 255, 0.7);
+}
+
+.segment-btn.active {
+    background: white;
+    box-shadow: var(--shadow-xs);
+    color: var(--slate-900);
+}
+
+.segment-btn.active.hc {
+    color: var(--amber-700);
+    background: var(--amber-50);
+}
+
+.segment-btn.active.ot {
+    color: var(--violet-700);
+    background: var(--violet-50);
+}
+
+.quick-options {
+    display: flex;
+    gap: 4px;
+}
+
+.btn-tiny {
+    font-size: 10.5px;
+    padding: 4px 8px;
+    border: 1px solid var(--violet-300);
+    color: var(--violet-700);
+    background: white;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-weight: 700;
+    font-family: inherit;
+}
+
+.btn-tiny:hover {
+    background: var(--violet-50);
+}
+
+.btn-tiny.active {
+    background: var(--violet-600);
+    color: white;
+    border-color: var(--violet-600);
+    box-shadow: var(--shadow-xs);
+}
+
+.hour-input {
+    width: 60px;
+    height: 30px;
+    padding: 2px 6px;
+    text-align: center;
+    border: 1px solid var(--slate-300);
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    font-size: 12px;
+    background: white;
+    color: var(--slate-900);
+    outline: none;
+    font-family: inherit;
+    transition: border-color var(--transition-fast);
+}
+
+.hour-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
+}
+
+.config-note {
+    font-size: 10px;
+    color: var(--slate-500);
+    text-align: right;
+    white-space: nowrap;
+}
+
+/* ========== STICKY SELECTION BAR (FLOATING DOCK) ========== */
+.selection-bar {
+    display: none;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 9px 16px;
+    background: #FFFFFF;
+    border-top: 1px solid var(--slate-200);
+    box-shadow: 0 -4px 20px rgba(15, 23, 42, 0.08);
+    z-index: 50;
+    position: sticky;
+    bottom: 0;
+}
+
+.selection-bar.visible {
+    display: flex;
+    animation: slideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.selection-bar-main {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+    flex-wrap: wrap;
+}
+
+.selection-bar-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--slate-900);
+    white-space: nowrap;
+}
+
+.selection-bar-title i {
+    color: var(--primary);
+}
+
+.selection-bar-title b {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--primary-700);
+}
+
+.selection-bar-title .sel-total {
+    color: var(--slate-400);
+    font-size: 11.5px;
+    font-weight: 600;
+}
+
+.selection-chips {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: wrap;
+    min-width: 0;
+}
+
+.sel-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: var(--radius-full);
+    font-size: 10.5px;
+    font-weight: 600;
+    background: white;
+    color: var(--slate-700);
+    border: 1px solid var(--slate-200);
+    white-space: nowrap;
+    box-shadow: var(--shadow-xs);
+}
+
+.sel-chip b {
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.chip-morning {
+    background: var(--amber-50);
+    border-color: var(--amber-200);
+    color: var(--amber-700);
+}
+
+.chip-ot {
+    background: var(--violet-50);
+    border-color: var(--violet-200);
+    color: var(--violet-700);
+}
+
+.chip-target {
+    background: var(--primary-50);
+    border-color: var(--primary-200);
+    color: var(--primary-700);
+}
+
+.chip-hours {
+    background: var(--emerald-50);
+    border-color: var(--emerald-200);
+    color: var(--emerald-700);
+}
+
+.chip-warning {
+    background: var(--rose-50);
+    border-color: var(--rose-200);
+    color: var(--rose-700);
+}
+
+.selection-bar-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+
+
+.selection-clear-btn {
+    border: 1px solid var(--slate-300);
+    background: white;
+    color: var(--slate-700);
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all var(--transition-fast);
+    height: 34px;
+    font-family: inherit;
+}
+
+.selection-clear-btn:hover {
+    border-color: var(--rose-500);
+    color: var(--rose-600);
+    background: var(--rose-50);
+}
+
+.selection-process-btn {
+    border: none;
+    background: linear-gradient(135deg, #10B981, #059669);
+    color: white;
+    padding: 0 18px;
+    border-radius: var(--radius-sm);
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 6px rgba(5, 150, 105, 0.3);
+    transition: all var(--transition-fast);
+    height: 34px;
+    letter-spacing: 0.2px;
+    font-family: inherit;
+}
+
+.selection-process-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.4);
+    background: linear-gradient(135deg, #059669, #047857);
+}
+
+/* Hover Preview Tooltip */
+.pkg-img-preview {
+    position: fixed;
+    z-index: 10000;
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    overflow: hidden;
+    display: none;
+    pointer-events: none;
+    max-width: 400px;
+    max-height: 480px;
+    border: 2px solid var(--primary);
+}
+
+.pkg-img-preview img {
+    width: 100%;
+    height: auto;
+    max-height: 480px;
+    object-fit: contain;
+    display: block;
+}
+
+.pkg-img-preview .preview-caption {
+    background: rgba(15, 23, 42, 0.9);
+    color: white;
+    padding: 8px 12px;
+    font-size: 11.5px;
+    text-align: center;
+    word-break: break-all;
+}
+
+/* ========== MODALS ========== */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.65);
+    z-index: 2000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--transition-base);
+    backdrop-filter: blur(8px);
+    padding: 16px;
+}
+
+.modal-overlay.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-box {
+    background: white;
+    width: 100%;
+    max-width: 640px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    display: flex;
+    flex-direction: column;
+    max-height: 85vh;
+    overflow: hidden;
+    transform: translateY(-16px) scale(0.97);
+    transition: all var(--transition-base);
+    border: 1px solid var(--slate-200);
+}
+
+.modal-overlay.open .modal-box {
+    transform: translateY(0) scale(1);
+}
+
+.modal-header {
+    padding: 12px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--slate-900);
+    color: white;
+    flex-shrink: 0;
+}
+
+.modal-header h3 {
+    font-size: 14.5px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.modal-body {
+    padding: 16px;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+}
+
+.modal-footer {
+    padding: 10px 16px;
+    border-top: 1px solid var(--slate-200);
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    flex-shrink: 0;
+    background: var(--slate-50);
+}
+
+/* Progress Modal */
+.progress-modal .modal-box {
+    max-width: 580px;
+}
+
+.progress-container {
+    margin: 12px 0;
+    padding: 16px;
+    background: var(--primary-50);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--primary-200);
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.progress-text {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--primary-700);
+}
+
+.progress-percentage {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--primary-600);
+}
+
+.progress-bar-wrapper {
+    width: 100%;
+    height: 22px;
+    background: white;
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    border: 1px solid var(--primary-200);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #2563EB, #1D4ED8);
+    border-radius: var(--radius-full);
+    transition: width 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar-fill::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; bottom: 0; right: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* ========== AUTH OVERLAY ========== */
+.auth-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(12px);
+    z-index: 99999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.auth-overlay.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.auth-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    width: 100%;
+    max-width: 380px;
+    overflow: hidden;
+    transform: scale(0.92) translateY(10px);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border: 1px solid var(--slate-200);
+}
+
+.auth-overlay.open .auth-card {
+    transform: scale(1) translateY(0);
+}
+
+.auth-header {
+    background: var(--slate-900);
+    color: white;
+    padding: 18px 20px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.auth-body {
+    padding: 24px 22px;
+    text-align: center;
+}
+
+.auth-icon {
+    font-size: 40px;
+    color: var(--primary);
+    margin-bottom: 12px;
+}
+
+.auth-body h3 {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--slate-900);
+    margin-bottom: 4px;
+}
+
+.auth-body p {
+    font-size: 13px;
+    color: var(--slate-500);
+    margin-bottom: 20px;
+}
+
+.auth-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.auth-input-group input {
+    padding: 10px 14px;
+    border: 1.5px solid var(--slate-300);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    outline: none;
+    transition: all var(--transition-fast);
+    width: 100%;
+    background: var(--slate-50);
+    font-family: inherit;
+}
+
+.auth-input-group input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    background: white;
+}
+
+.auth-btn {
+    width: 100%;
+    height: 42px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+}
+
+.auth-btn:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+.auth-error {
+    color: var(--rose-600);
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 10px;
+    min-height: 18px;
+}
+
+/* Utilities & Loaders */
+.loader {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--slate-300);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+.loader-sm {
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--slate-300);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin { 100% { transform: rotate(360deg); } }
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.hidden { display: none !important; }
+
+/* ========== RESPONSIVE BREAKPOINTS ========== */
+@media (max-width: 1100px) {
+    .control-row-main { flex-wrap: wrap; }
+    .toolbar-inputs { flex: 1 1 100%; }
+    .toolbar-inputs .btn { margin-left: auto; }
+    .kpi-bar { width: 100%; }
+    .kpi-item { flex: 1 1 0; min-width: 0; padding: 4px 8px; }
+    .kpi-value { font-size: 14px; }
+    .control-row-sub .compact-search-group { max-width: none; flex: 1 1 100%; }
+    .filter-result { display: none; }
+}
+
+@media (max-width: 900px) {
+    .card-main {
+        grid-template-columns: 34px 50px minmax(0, 1fr) 150px;
+        grid-template-rows: auto auto;
+    }
+    .col-select { grid-column: 1; grid-row: 1; }
+    .col-img { grid-column: 2; grid-row: 1; width: 46px; height: 46px; }
+    .col-info { grid-column: 3; grid-row: 1; }
+    .col-shift { grid-column: 4; grid-row: 1; }
+    .col-status {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        border-left: none;
+        border-top: 1px solid var(--slate-200);
+        padding: 6px 10px;
+    }
+    .card-config { grid-template-columns: 1fr 1fr; }
+    .config-note { grid-column: 1 / -1; text-align: left; }
+}
+
+@media (max-width: 768px) {
+    body { padding: 0; }
+    .container { height: 100vh; border-radius: 0; border: none; }
+    .header { padding: 8px 12px; }
+    .header-title { font-size: 14px; }
+    .control-row { padding: 8px 10px; }
+    .kpi-bar { gap: 6px; }
+    .kpi-item { flex: 1 1 45%; }
+    .selection-bar { flex-direction: column; align-items: stretch; gap: 8px; padding: 8px 10px; }
+    
+    .card-main {
+        grid-template-columns: 30px 44px minmax(0, 1fr);
+        grid-template-rows: auto auto auto;
+    }
+    .col-select { grid-column: 1; grid-row: 1; }
+    .col-img { grid-column: 2; grid-row: 1; width: 40px; height: 40px; }
+    .col-info { grid-column: 3; grid-row: 1; }
+    .col-status { grid-column: 1 / -1; grid-row: 2; }
+    .col-shift {
+        grid-column: 1 / -1;
+        grid-row: 3;
+        border-left: none;
+        border-top: 1px solid var(--slate-200);
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 6px 10px;
+    }
+    .card-config { grid-template-columns: 1fr; }
+}
+
+/* Touch device targets */
+@media (hover: none) and (pointer: coarse) {
+    .btn, .shift-toggle, .selection-clear-btn, .selection-process-btn {
+        min-height: 40px;
+    }
+    .cmd-checkbox, .line-checkbox {
+        width: 24px;
+        height: 24px;
+    }
+}
+
     </style>
 </head>
 <body>
-
 <!-- Auth overlay (password gate) -->
 <div id="authOverlay" class="auth-overlay open">
     <div class="auth-card">
         <div class="auth-header">
-            <i class="fas fa-shield-alt"></i> MES Pro - Bảo mật
+            <i class="fas fa-shield-alt"></i> MES Pro · Xác thực
         </div>
         <div class="auth-body">
             <div class="auth-icon"><i class="fas fa-lock"></i></div>
             <h3>Xác thực tài khoản</h3>
-            <p>Nhập thông tin đăng nhập để tiếp tục</p>
+            <p>Nhập thông tin đăng nhập để truy cập hệ thống Batch Mode</p>
             <div class="auth-input-group">
                 <input type="text" id="authUsername" placeholder="Tên đăng nhập" autocomplete="username">
                 <div style="position:relative;width:100%;">
                     <input type="password" id="authPassword" placeholder="Mật khẩu" autocomplete="current-password" style="width:100%;padding-right:40px;">
-                    <span id="authPasswordToggle" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--gray-500);font-size:16px;padding:4px;" onclick="togglePasswordVisibility()">
+                    <span id="authPasswordToggle" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--slate-500);font-size:16px;padding:4px;" onclick="togglePasswordVisibility()">
                         <i class="fas fa-eye"></i>
                     </span>
                 </div>
@@ -1309,20 +2153,26 @@
 
 <div class="container">
     <!-- HEADER -->
-    <div class="header">
-        <div class="header-title">
-            <i class="fas fa-industry"></i> Batch Mode Pro v3.1
+    <header class="header">
+        <div class="header-title-wrap">
+            <div class="brand-icon"><i class="fas fa-cubes"></i></div>
+            <div class="header-title">
+                <span>MES Production</span>
+                <span class="header-badge-tag"><i class="fas fa-bolt"></i> Batch Pro v3.3</span>
+            </div>
         </div>
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <a href="https://input-hourly-target.vercel.app/" target="_blank" class="header-manual-btn">
+        <div class="header-actions">
+            <span class="header-fa" title="Trạng thái kết nối dịch vụ gửi lệnh FA tự động">
+                <i class="fas fa-robot"></i> FA <span class="fa-status-indicator" id="faStatusIndicator"></span>
+            </span>
+            <a href="https://input-hourly-target.vercel.app/" target="_blank" class="header-manual-btn" title="Chuyển sang trang nhập liệu thủ công">
                 <i class="fas fa-keyboard"></i> Nhập Thủ Công
             </a>
-            <button id="logoutBtn" class="btn-logout" onclick="handleLogout()" style="display:none">
+            <button id="logoutBtn" class="btn-logout" onclick="handleLogout()" style="display:none" title="Đăng xuất khỏi hệ thống">
                 <i class="fas fa-sign-out-alt"></i> Đăng xuất
             </button>
-            <div class="header-badge"><i class="fas fa-bolt"></i> BATCH</div>
         </div>
-    </div>
+    </header>
 
     <!-- HOVER PREVIEW ELEMENT -->
     <div id="imagePreview" class="pkg-img-preview">
@@ -1330,200 +2180,181 @@
         <div id="previewCaption" class="preview-caption"></div>
     </div>
 
-    <!-- COMPACT TOOLBAR -->
-    <div class="compact-toolbar">
-        <!-- INPUT GROUPS -->
-        <div style="display: flex; flex-wrap: wrap; gap: 8px; flex: 1;">
-            
-            <div class="compact-input-group">
-                <label><i class="fas fa-industry"></i> Factory</label>
-                <select id="factory" class="compact-select" onchange="saveConfig()">
-                    <option value="P2C1">P2C1</option>
-                    <option value="P2A1">P2A1</option>
-                    <option value="P2B1">P2B1</option>
-                    <option value="P2D1">P2D1</option>
-                    <option value="P2E1">P2E1</option>
-                </select>
-            </div>
-            
-            <div class="compact-input-group">
-                <label><i class="fas fa-calendar"></i> Date</label>
-                <input type="date" id="dateSelect" class="compact-input" onchange="saveConfig()">
-            </div>
-            
-            <button class="btn btn-primary" onclick="loadPackages()">
-                <i class="fas fa-sync-alt"></i> Tải Package
-            </button>
-        </div>
-        
-        <!-- COMPACT STATS BAR -->
-        <div class="compact-stats-bar">
-            <div class="compact-stat-item">
-                <i class="fas fa-cube compact-stat-icon"></i>
-                <div>
-                    <div class="compact-stat-value" id="sumCount">0</div>
-                    <div class="compact-stat-label">Đã chọn</div>
+    <!-- CONTROL PANEL (COMMAND BAR) -->
+    <div class="control-panel">
+        <!-- Row 1: Factory / Date inputs + Unified Master KPI Bar -->
+        <div class="control-row control-row-main">
+            <div class="toolbar-inputs">
+                <div class="compact-input-group">
+                    <label for="factory"><i class="fas fa-industry"></i> Xưởng</label>
+                    <select id="factory" class="compact-select" onchange="saveConfig()">
+                        <option value="P2C1">P2C1</option>
+                        <option value="P2A1">P2A1</option>
+                        <option value="P2B1">P2B1</option>
+                        <option value="P2D1">P2D1</option>
+                        <option value="P2E1">P2E1</option>
+                    </select>
                 </div>
-            </div>
-            
-            <div class="compact-stat-item">
-                <i class="fas fa-bullseye compact-stat-icon"></i>
-                <div>
-                    <div class="compact-stat-value" id="sumQty">0</div>
-                    <div class="compact-stat-label">Target</div>
-                </div>
-            </div>
-            
-            <div class="compact-stat-item">
-                <i class="fas fa-clock compact-stat-icon"></i>
-                <div>
-                    <div class="compact-stat-value" id="sumHours">0h</div>
-                    <div class="compact-stat-label">Giờ làm</div>
-                </div>
-            </div>
-            
-            <div class="compact-stat-item">
-                <i class="fas fa-eye compact-stat-icon"></i>
-                <div>
-                    <div class="compact-stat-value" id="filteredCount">0</div>
-                    <div class="compact-stat-label">Hiển thị</div>
-                </div>
-            </div>
-            
-            <div class="compact-stat-item">
-                <i class="fas fa-database compact-stat-icon"></i>
-                <div>
-                    <div class="compact-stat-value" id="totalCount">0</div>
-                    <div class="compact-stat-label">Tổng</div>
-                </div>
-            </div>
-            
-            <div class="compact-stat-item">
-                <i class="fas fa-percentage compact-stat-icon"></i>
-                <div>
-                    <div class="compact-stat-value" id="completionRate">0%</div>
-                    <div class="compact-stat-label">Hoàn thành</div>
-                </div>
-            </div>
-            
-            <div class="compact-stat-item">
-                <i class="fas fa-robot compact-stat-icon"></i>
-                <div>
-                    <div class="compact-stat-value">
-                        ON
-                        <span class="fa-status-indicator" id="faStatusIndicator"></span>
-                    </div>
-                    <div class="compact-stat-label">FA</div>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- COMPACT ACTION BAR - PHIÊN BẢN 2.7 HOÀN CHỈNH -->
-    <div class="compact-action-bar">
-        <!-- CHỌN GÓI (BÊN TRÁI) -->
-        <div class="compact-action-group">
-            <span class="compact-action-label">Chọn gói:</span>
-            <button class="btn btn-success btn-xs" id="selectAllBtn" onclick="toggleSelectAll()" style="display:none">
-                <i class="fas fa-check-double"></i> Tất cả
-            </button>
-            <button class="btn btn-warning btn-xs" onclick="setAllToMorning()">
-                <i class="fas fa-sun"></i> Sáng
-            </button>
-            <button class="btn btn-ot btn-xs" onclick="setAllToOT3h()">
-                <i class="fas fa-moon"></i> OT 3h
-            </button>
-            <button class="btn btn-secondary btn-xs" onclick="resetAllSelections()">
-                <i class="fas fa-redo"></i> Reset
-            </button>
+                <div class="compact-input-group">
+                    <label for="dateSelect"><i class="fas fa-calendar-alt"></i> Ngày</label>
+                    <input type="date" id="dateSelect" class="compact-input" onchange="saveConfig()">
+                </div>
+
+                <button class="btn btn-primary" onclick="loadPackages()" id="loadPackagesBtn">
+                    <i class="fas fa-sync-alt"></i> Tải Package
+                </button>
+            </div>
+
+            <!-- Unified KPI Metrics Bar -->
+            <div class="kpi-bar" aria-label="Thống kê nhanh">
+                <div class="kpi-item" title="Tổng số gói tải về từ hệ thống">
+                    <div class="kpi-icon-wrap"><i class="fas fa-cubes kpi-icon"></i></div>
+                    <div class="kpi-content">
+                        <div class="kpi-value" id="totalCount">0</div>
+                        <div class="kpi-label">Tổng gói</div>
+                    </div>
+                </div>
+
+                <div class="kpi-item kpi-item-selected" title="Số gói đã chọn / Tổng số gói">
+                    <div class="kpi-icon-wrap"><i class="fas fa-check-circle kpi-icon"></i></div>
+                    <div class="kpi-content">
+                        <div class="kpi-value"><span id="sumCount">0</span><span class="stat-divider">/</span><span class="stat-total" id="sumCountTotal">0</span></div>
+                        <div class="kpi-label">Đã chọn</div>
+                    </div>
+                </div>
+
+                <div class="kpi-item kpi-item-ot" title="Gói OT đã chọn">
+                    <div class="kpi-icon-wrap"><i class="fas fa-moon kpi-icon"></i></div>
+                    <div class="kpi-content">
+                        <div class="kpi-value"><span id="sumOTCount">0</span></div>
+                        <div class="kpi-label">OT đã chọn</div>
+                        <div class="kpi-sub" id="sumOTBreakdown">3h: 0 · 11h: 0</div>
+                    </div>
+                </div>
+
+                <div class="kpi-item" title="Tổng Target của các gói đã chọn">
+                    <div class="kpi-icon-wrap"><i class="fas fa-bullseye kpi-icon"></i></div>
+                    <div class="kpi-content">
+                        <div class="kpi-value" id="sumQty">0</div>
+                        <div class="kpi-label">Target chọn</div>
+                    </div>
+                </div>
+
+                <div class="kpi-item" title="Tổng giờ làm việc đã phân bổ">
+                    <div class="kpi-icon-wrap"><i class="fas fa-clock kpi-icon"></i></div>
+                    <div class="kpi-content">
+                        <div class="kpi-value" id="sumHours">0h</div>
+                        <div class="kpi-label">Giờ làm</div>
+                    </div>
+                </div>
+            </div>
         </div>
-        
-        <!-- LỌC (GIỮA) -->
-        <div class="compact-filter-group">
-            <span class="compact-filter-label">Lọc:</span>
-            <select id="lineFilter" class="compact-filter-select" onchange="filterPackages()">
-                <option value="all">Tất cả Line</option>
-            </select>
-            <select id="statusFilter" class="compact-filter-select" onchange="filterPackages()">
-                <option value="all">Tất cả</option>
-                <option value="pending">Chưa nhập</option>
-                <option value="done">Đủ Target</option>
-                <option value="over">Vượt Target</option>
-                <option value="miss">Thiếu Target</option>
-            </select>
-            <select id="otFilter" class="compact-filter-select" onchange="filterPackages()">
-                <option value="all">Tất cả OT</option>
-                <option value="hasOT">Có OT</option>
-                <option value="noOT">Không OT</option>
-            </select>
-        </div>
-        
-        <!-- THANH TÌM KIẾM (BÊN PHẢI) -->
-        <div class="compact-search-group">
-            <input type="text" id="searchInput" class="compact-search-input" placeholder="Tìm kiếm..." oninput="filterPackages()">
-        </div>
-        
-        <!-- NÚT XỬ LÝ (BÊN PHẢI) - MÀU XANH ĐẬM -->
-        <div class="compact-process-group">
-            <button id="processBtn" class="btn-process" onclick="showBatchPreview()" disabled>
-                <i class="fas fa-rocket"></i> XỬ LÝ HÀNG LOẠT
-            </button>
+
+        <!-- Row 2: Filters, Search & Bulk Actions -->
+        <div class="control-row control-row-sub">
+            <div class="filter-actions">
+                <span class="control-label"><i class="fas fa-filter"></i> Lọc</span>
+                <select id="lineFilter" class="compact-filter-select" onchange="filterPackages()">
+                    <option value="all">Tất cả Line</option>
+                </select>
+                <select id="statusFilter" class="compact-filter-select" onchange="filterPackages()">
+                    <option value="all">Tất cả trạng thái</option>
+                    <option value="pending">Chưa nhập</option>
+                    <option value="done">Đủ Target</option>
+                    <option value="over">Vượt Target</option>
+                    <option value="miss">Thiếu Target</option>
+                </select>
+                <select id="otFilter" class="compact-filter-select" onchange="filterPackages()">
+                    <option value="all">Tất cả OT</option>
+                    <option value="hasOT">Có OT</option>
+                    <option value="noOT">Không OT</option>
+                </select>
+                <span class="filter-result"><b id="filteredCount">0</b> gói hiển thị</span>
+            </div>
+
+            <div class="compact-search-group">
+                <input type="text" id="searchInput" class="compact-search-input" placeholder="Tìm mã gói, style, line... (Ctrl+F)" oninput="filterPackages()">
+            </div>
+
+            <div class="bulk-actions">
+                <button class="btn btn-outline btn-xs" id="selectAllBtn" onclick="toggleSelectAll()" style="display:none">
+                    <i class="fas fa-check-double"></i> Chọn hiển thị
+                </button>
+                <button class="btn btn-warning btn-xs" onclick="setAllToMorning()" title="Áp dụng ca sáng cho các gói đã chọn">
+                    <i class="fas fa-sun"></i> Sáng
+                </button>
+                <button class="btn btn-ot btn-xs" onclick="setAllToOT3h()" title="Áp dụng OT 3 giờ cho các gói đã chọn">
+                    <i class="fas fa-moon"></i> OT 3h
+                </button>
+                <button class="btn btn-ot btn-xs" onclick="setAllToOT11h()" title="Áp dụng OT 11 giờ cho các gói đã chọn">
+                    <i class="fas fa-moon"></i> OT 11h
+                </button>
+                <div class="toolbar-divider"></div>
+                <button class="btn btn-outline-danger btn-xs" id="btnTopClear" onclick="resetAllSelections()" title="Bỏ chọn tất cả gói và đặt lại ca/giờ" disabled>
+                    <i class="fas fa-times"></i> Bỏ chọn
+                </button>
+                <button class="btn btn-success btn-xs btn-top-process" id="btnTopProcess" onclick="showBatchPreview()" title="Mở xem trước phân bổ và gửi lệnh MES" disabled>
+                    <i class="fas fa-rocket"></i> Xử lý <span class="badge-count" id="barProcessCount">0</span>
+                </button>
+            </div>
         </div>
     </div>
 
     <!-- CONTENT AREA -->
     <div class="content-wrapper">
         <div class="package-list-area">
-            <!-- SUMMARY BANNER -->
-            <div id="loadingSummary" class="summary-banner hidden">
-                <div class="summary-item">
-                    <div class="summary-icon" style="color:var(--primary);"><i class="fas fa-cubes"></i></div>
-                    <div>
-                        <div class="summary-label">Gói</div>
-                        <div class="summary-value"><b id="summaryPackageCount">0</b></div>
+            <!-- SLIM MASTER TELEMETRY STRIP -->
+            <div id="loadingSummary" class="data-strip hidden">
+                <div class="data-strip-items">
+                    <div class="data-pill">
+                        <i class="fas fa-cubes"></i>
+                        <span>Tổng:</span>
+                        <b id="summaryPackageCount">0</b> gói
+                    </div>
+                    <div class="data-pill">
+                        <i class="fas fa-bullseye"></i>
+                        <span>Mục tiêu:</span>
+                        <b id="summaryTarget">0</b>
+                    </div>
+                    <div class="data-pill" id="summaryActualContainer">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Thực tế:</span>
+                        <b id="summaryActual">0</b>
+                        <span class="data-muted" id="summaryPercent">(0%)</span>
+                    </div>
+                    <div class="data-pill ot" title="Số gói có dữ liệu OT từ hệ thống">
+                        <i class="fas fa-moon"></i>
+                        <span>OT khả dụng:</span>
+                        <b id="summaryOTCount">0</b>
                     </div>
                 </div>
-                <div class="summary-item">
-                    <div class="summary-icon" style="color:#E65100;"><i class="fas fa-bullseye"></i></div>
-                    <div>
-                        <div class="summary-label">Target</div>
-                        <div class="summary-value"><b id="summaryTarget">0</b></div>
-                    </div>
-                </div>
-                <div class="summary-item" id="summaryActualContainer">
-                    <div class="summary-icon" style="color:var(--success);"><i class="fas fa-check-circle"></i></div>
-                    <div>
-                        <div class="summary-label">Thực tế</div>
-                        <div class="summary-value"><b id="summaryActual">0</b> <span id="summaryPercent">(0%)</span></div>
-                    </div>
-                </div>
-                <div class="summary-item">
-                    <div class="summary-icon" style="color:#7B1FA2;"><i class="fas fa-moon"></i></div>
-                    <div>
-                        <div class="summary-label">OT</div>
-                        <div class="summary-value"><b id="summaryOTCount">0</b> gói</div>
+                <div class="data-progress-wrap" title="Tiến độ thực tế / Mục tiêu toàn xưởng">
+                    <div class="data-progress">
+                        <div class="data-progress-fill" id="summaryProgressFill"></div>
                     </div>
                 </div>
             </div>
-            
+
             <!-- PACKAGE LIST -->
             <div id="packageListContainer">
-                <div style="text-align:center;padding:60px;color:var(--gray-400);display:flex;flex-direction:column;align-items:center;gap:12px;">
-                    <div style="font-size:48px;opacity:0.3;"><i class="fas fa-cubes"></i></div>
-                    <div style="font-size:15px;font-weight:600;color:var(--gray-500);">Vui lòng nhập API Key và tải dữ liệu</div>
-                    <div style="font-size:12px;color:var(--gray-400);">Sử dụng thanh công cụ phía trên để bắt đầu</div>
+                <div style="text-align:center;padding:70px 20px;color:var(--slate-400);display:flex;flex-direction:column;align-items:center;gap:14px;">
+                    <div style="font-size:46px;opacity:0.35;color:var(--primary);"><i class="fas fa-cubes"></i></div>
+                    <div style="font-size:15px;font-weight:700;color:var(--slate-600);">Hệ thống sẵn sàng tải dữ liệu</div>
+                    <div style="font-size:12.5px;color:var(--slate-400);max-width:360px;">Chọn xưởng, ngày làm việc và nhấn nút <b>"Tải Package"</b> ở thanh công cụ phía trên để bắt đầu</div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+
+    </div>
 
 <!-- MODALS -->
 <div class="modal-overlay" id="batchPreviewModal">
     <div class="modal-box">
         <div class="modal-header">
             <h3><i class="fas fa-layer-group"></i> Xem trước Batch Mode</h3>
-            <button class="btn btn-sm btn-danger" onclick="closeBatchPreviewModal()">
+            <button class="btn btn-sm btn-secondary" style="background:rgba(255,255,255,0.15);color:white;border:none;" onclick="closeBatchPreviewModal()">
                 <i class="fas fa-times"></i>
             </button>
         </div>
@@ -1552,13 +2383,13 @@
                     <div class="progress-bar-fill" id="progressBar" style="width: 0%"></div>
                 </div>
                 <div style="display:flex; justify-content:center; gap:15px; margin-top:10px; font-size:12px;">
-                    <span style="color:var(--success)"><i class="fas fa-check"></i> <span id="progressSuccess">0</span></span>
-                    <span style="color:var(--error)"><i class="fas fa-times"></i> <span id="progressFail">0</span></span>
+                    <span style="color:var(--emerald-600); font-weight:700;"><i class="fas fa-check"></i> <span id="progressSuccess">0</span></span>
+                    <span style="color:var(--rose-600); font-weight:700;"><i class="fas fa-times"></i> <span id="progressFail">0</span></span>
                 </div>
             </div>
             
             <div id="processing-detail-container" style="margin-top: 15px; text-align: left;">
-                <div style="padding: 15px; color: #666; font-style: italic; text-align: center;">Đang chuẩn bị dữ liệu...</div>
+                <div style="padding: 15px; color: var(--slate-500); font-style: italic; text-align: center;">Đang chuẩn bị dữ liệu...</div>
             </div>
         </div>
     </div>
@@ -1568,7 +2399,7 @@
     <div class="modal-box">
         <div class="modal-header">
             <h3><i class="fas fa-check-circle"></i> Kết quả xử lý</h3>
-            <button class="btn btn-sm btn-danger" onclick="closeResultModal()">
+            <button class="btn btn-sm btn-secondary" style="background:rgba(255,255,255,0.15);color:white;border:none;" onclick="closeResultModal()">
                 <i class="fas fa-times"></i>
             </button>
         </div>
@@ -1585,6 +2416,29 @@
 </div>
 
 <script>
+    
+    // ========== 12. KEYBOARD SHORTCUTS ==========
+    document.addEventListener('keydown', function(e) {
+        // Ctrl+F or '/' to focus search
+        if ((e.ctrlKey && e.key.toLowerCase() === 'f') || (e.key === '/' && !['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName))) {
+            e.preventDefault();
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.focus();
+                searchInput.select();
+            }
+        }
+        // Escape to blur search or close preview modal
+        if (e.key === 'Escape') {
+            const previewModal = document.getElementById('batchPreviewModal');
+            if (previewModal && previewModal.classList.contains('open')) {
+                closeBatchPreviewModal();
+            } else if (document.activeElement && document.activeElement.id === 'searchInput') {
+                document.activeElement.blur();
+            }
+        }
+    });
+
     // ========== 1. GLOBAL VARIABLES ==========
 
     // Proxy base URL — all MES requests go through this
@@ -1797,7 +2651,12 @@
             // If click is on command center controls, let those handle it
             if (e.target.closest('.segment-btn') || 
                 e.target.closest('.btn-tiny') || 
-                e.target.closest('.hour-input')) {
+                e.target.closest('.hour-input') ||
+                e.target.closest('.card-config') ||
+                e.target.closest('.shift-toggle') ||
+                e.target.closest('.shift-quick-select') ||
+                e.target.closest('.shift-toggle-btn') ||
+                e.target.closest('[data-shift-toggle]')) {
                 return;
             }
             
@@ -1811,7 +2670,23 @@
                 const pkgId = e.target.closest('.package-card').id.replace('card-', '');
                 handleCheckboxClick(e.target.checked, pkgId);
             }
+
+            // Chọn / bỏ chọn toàn bộ một Line đang hiển thị
+            if (e.target.classList.contains('line-checkbox')) {
+                const line = e.target.closest('.line-header')?.dataset.line;
+                if (line === undefined) return;
+
+                const ids = Array.from(container.querySelectorAll('.package-card'))
+                    .filter(card => card.dataset.line === line)
+                    .map(card => card.id.replace('card-', ''));
+                bulkSetSelection(ids, e.target.checked);
+            }
             
+            if (e.target.classList.contains('shift-quick-select')) {
+                const pkgId = e.target.dataset.pkgId || e.target.closest('.package-card').id.replace('card-', '');
+                handleShiftSelectChange(pkgId, e.target.value);
+            }
+
             if (e.target.classList.contains('hour-input')) {
                 const pkgId = e.target.closest('.package-card').id.replace('card-', '');
                 updateHours(pkgId, e.target.value);
@@ -1820,6 +2695,15 @@
         
         // Handle button clicks in command center
         container.addEventListener('click', function(e) {
+            // Expand / collapse config drawer
+            if (e.target.closest('.shift-toggle') || e.target.closest('.shift-toggle-btn') || e.target.closest('[data-shift-toggle]')) {
+                const toggle = e.target.closest('.shift-toggle') || e.target.closest('.shift-toggle-btn') || e.target.closest('[data-shift-toggle]');
+                const pkgId = toggle.closest('.package-card').id.replace('card-', '');
+                toggleCardConfig(pkgId);
+                e.stopPropagation();
+                return;
+            }
+
             // Shift buttons
             if (e.target.closest('.segment-btn')) {
                 const btn = e.target.closest('.segment-btn');
@@ -1833,7 +2717,7 @@
             if (e.target.closest('.btn-tiny')) {
                 const btn = e.target.closest('.btn-tiny');
                 const pkgId = btn.closest('.package-card').id.replace('card-', '');
-                const otMode = btn.textContent.includes('3h') ? '3h' : '11h';
+                const otMode = btn.textContent.includes('3') ? '3h' : '11h';
                 handleOTModeClick(pkgId, otMode);
                 e.stopPropagation();
             }
@@ -1844,23 +2728,68 @@
     function handleCardClick(pkgId) {
         const checkbox = document.querySelector(`#card-${pkgId} .cmd-checkbox`);
         if (checkbox) {
-            const newState = !checkbox.checked;
-            checkbox.checked = newState;
-            handleCheckboxClick(newState, pkgId);
+            handleCheckboxClick(!checkbox.checked, pkgId);
         }
     }
 
-    function handleCheckboxClick(checked, pkgId) {
+    // Cập nhật state + UI của một gói, không tự gọi updateSummary (dùng cho bulk)
+    
+    function resetCardControls(pkgId) {
+        const card = document.getElementById(`card-${pkgId}`);
+        if (!card) return;
+
+        // Reset quick select dropdown
+        const select = card.querySelector('.shift-quick-select');
+        if (select) {
+            select.classList.remove('is-ot');
+            select.value = 'morning';
+        }
+
+        // Reset toggle button
+        const toggleBtn = card.querySelector('.shift-toggle-btn');
+        if (toggleBtn) toggleBtn.classList.remove('is-ot');
+
+        // Reset hint
+        const hint = card.querySelector(`.shift-hint-${pkgId}`);
+        if (hint) hint.textContent = 'Bấm để chỉnh giờ';
+
+        // Reset drawer elements
+        const cmd = document.getElementById(`cmd-${pkgId}`);
+        if (cmd) {
+            cmd.classList.remove('mode-ot');
+            const hcBtn = cmd.querySelector('.hc');
+            const otBtn = cmd.querySelector('.ot');
+            if (hcBtn) hcBtn.classList.add('active');
+            if (otBtn) otBtn.classList.remove('active');
+
+            const otOpts = document.getElementById(`ot-opts-${pkgId}`);
+            if (otOpts) {
+                otOpts.classList.add('hidden');
+                otOpts.querySelectorAll('.btn-tiny').forEach((b, idx) => {
+                    b.classList.toggle('active', idx === 0);
+                });
+            }
+
+            const input = document.getElementById(`input-${pkgId}`);
+            if (input) input.value = 7.5;
+        }
+    }
+
+    function applySelectionState(pkgId, checked) {
         const card = document.getElementById(`card-${pkgId}`);
         const cmd = document.getElementById(`cmd-${pkgId}`);
-        
+        const checkbox = card?.querySelector('.cmd-checkbox');
+
+        if (checkbox && checkbox.checked !== checked) checkbox.checked = checked;
+
         if (checked) {
             batchSelected.add(pkgId);
-            if (card) {
-                card.classList.add('selected');
-            }
-            if (cmd) cmd.classList.remove('disabled-overlay');
-            
+            card?.classList.add('selected');
+            cmd?.classList.remove('disabled-overlay');
+            cmd?.setAttribute('aria-hidden', 'false');
+            const note = cmd?.querySelector('.config-note');
+            if (note) note.innerHTML = '<i class="fas fa-check-circle" style="color:var(--emerald-600)"></i> Áp dụng cho gói này';
+
             // Initialize default config if not exists
             if (!batchConfigs[pkgId]) {
                 batchConfigs[pkgId] = { shift: 'morning', otMode: '3h', hours: 7.5 };
@@ -1868,12 +2797,93 @@
             refreshCardUI(pkgId);
         } else {
             batchSelected.delete(pkgId);
-            if (card) card.classList.remove('selected');
-            if (cmd) cmd.classList.add('disabled-overlay');
+            delete batchConfigs[pkgId];
+            card?.classList.remove('selected');
+            card?.classList.remove('config-open');
+            cmd?.classList.add('disabled-overlay');
+            cmd?.setAttribute('aria-hidden', 'true');
+            const note = cmd?.querySelector('.config-note');
+            if (note) note.textContent = 'Chọn gói để cấu hình';
+            const toggle = card?.querySelector('.shift-toggle');
+            if (toggle) toggle.setAttribute('aria-expanded', 'false');
+
+            // Reset all card controls and dropdown back to morning 7.5h
+            resetCardControls(pkgId);
         }
-        
+    }
+
+    function toggleCardConfig(pkgId) {
+        const card = document.getElementById(`card-${pkgId}`);
+        if (!card) return;
+
+        // Mở cấu hình cho gói chưa chọn: tự chọn gói để cấu hình có hiệu lực
+        if (!batchSelected.has(pkgId)) {
+            applySelectionState(pkgId, true);
+            updateSelectionUI();
+        }
+
+        const open = card.classList.toggle('config-open');
+        const cmd = document.getElementById(`cmd-${pkgId}`);
+        const toggle = card.querySelector('.shift-toggle');
+        if (toggle) toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (cmd) cmd.setAttribute('aria-hidden', open ? 'false' : 'true');
+
+        const hint = card.querySelector(`.shift-hint-${pkgId}`);
+        if (hint) hint.textContent = open ? 'Bấm để thu gọn' : 'Bấm để đổi ca';
+    }
+
+    function handleCheckboxClick(checked, pkgId) {
+        applySelectionState(pkgId, checked);
+        updateSelectionUI();
+    }
+
+    function updateSelectionUI() {
         updateSummary();
         updateSelectAllButton();
+        updateLineHeaderStates();
+    }
+
+    // Áp dụng hàng loạt, chỉ tính toán lại UI một lần
+    function bulkSetSelection(pkgIds, checked) {
+        pkgIds.forEach(pkgId => applySelectionState(pkgId, checked));
+        updateSelectionUI();
+    }
+
+    
+    function handleShiftSelectChange(pkgId, value) {
+        if (!batchSelected.has(pkgId)) {
+            applySelectionState(pkgId, true);
+        }
+        if (!batchConfigs[pkgId]) {
+            batchConfigs[pkgId] = { shift: 'morning', otMode: '3h', hours: 7.5 };
+        }
+
+        const card = document.getElementById(`card-${pkgId}`);
+
+        if (value === 'morning') {
+            batchConfigs[pkgId].shift = 'morning';
+            batchConfigs[pkgId].otMode = '3h';
+            batchConfigs[pkgId].hours = 7.5;
+            card?.classList.remove('config-open');
+        } else if (value === 'ot_3h') {
+            batchConfigs[pkgId].shift = 'ot';
+            batchConfigs[pkgId].otMode = '3h';
+            batchConfigs[pkgId].hours = 3;
+            card?.classList.remove('config-open');
+        } else if (value === 'ot_11h') {
+            batchConfigs[pkgId].shift = 'ot';
+            batchConfigs[pkgId].otMode = '11h';
+            batchConfigs[pkgId].hours = 11;
+            card?.classList.remove('config-open');
+        } else if (value === 'custom') {
+            // Open right-aligned config drawer for custom hour adjustment
+            if (!card?.classList.contains('config-open')) {
+                toggleCardConfig(pkgId);
+            }
+        }
+
+        refreshCardUI(pkgId);
+        updateSummary();
     }
 
     function handleShiftButtonClick(pkgId, shiftType) {
@@ -1921,33 +2931,60 @@
     function refreshCardUI(pkgId) {
         const cfg = batchConfigs[pkgId];
         if (!cfg) return;
-        
+
+        const card = document.getElementById(`card-${pkgId}`);
         const cmd = document.getElementById(`cmd-${pkgId}`);
         if (!cmd) return;
-        
+
         // Update shift buttons
         const hcBtn = cmd.querySelector('.hc');
         const otBtn = cmd.querySelector('.ot');
         if (hcBtn) hcBtn.classList.toggle('active', cfg.shift === 'morning');
         if (otBtn) otBtn.classList.toggle('active', cfg.shift === 'ot');
-        
+
         // Update OT mode
         cmd.classList.toggle('mode-ot', cfg.shift === 'ot');
-        
+
         const otOpts = document.getElementById(`ot-opts-${pkgId}`);
         if (otOpts) {
             otOpts.classList.toggle('hidden', cfg.shift !== 'ot');
-            
+
             if (cfg.shift === 'ot') {
                 otOpts.querySelectorAll('.btn-tiny').forEach(btn => btn.classList.remove('active'));
                 const activeBtn = otOpts.querySelector(`.btn-tiny${cfg.otMode === '3h' ? ':first-child' : ':last-child'}`);
                 if (activeBtn) activeBtn.classList.add('active');
             }
         }
-        
+
         // Update hours input
         const input = document.getElementById(`input-${pkgId}`);
         if (input) input.value = cfg.hours;
+
+        // Update dropdown and toggle button
+        const select = card?.querySelector('.shift-quick-select');
+        if (select) {
+            select.classList.toggle('is-ot', cfg.shift === 'ot');
+            if (cfg.shift === 'morning' && cfg.hours === 7.5) {
+                select.value = 'morning';
+            } else if (cfg.shift === 'ot' && cfg.otMode === '3h' && cfg.hours === 3) {
+                select.value = 'ot_3h';
+            } else if (cfg.shift === 'ot' && cfg.otMode === '11h' && cfg.hours === 11) {
+                select.value = 'ot_11h';
+            } else {
+                let customOpt = select.querySelector('option[value="custom"]');
+                if (customOpt) customOpt.textContent = `⚙️ Tùy chỉnh (${cfg.hours}h)`;
+                select.value = 'custom';
+            }
+        }
+
+        const toggleBtn = card?.querySelector('.shift-toggle-btn');
+        if (toggleBtn) toggleBtn.classList.toggle('is-ot', cfg.shift === 'ot');
+
+        const hint = card?.querySelector(`.shift-hint-${pkgId}`);
+        if (hint) {
+            const isCustom = (cfg.shift === 'morning' && cfg.hours !== 7.5) || (cfg.shift === 'ot' && cfg.hours !== 3 && cfg.hours !== 11);
+            hint.textContent = isCustom ? `Đang chỉnh: ${cfg.hours} giờ` : 'Bấm để chỉnh giờ';
+        }
     }
 
     function updateSelectAllButton() {
@@ -1964,36 +3001,21 @@
         const btn = document.getElementById('selectAllBtn');
         btn.style.display = 'inline-flex';
         btn.innerHTML = allSelected ? 
-            '<i class="fas fa-times"></i> Bỏ chọn' : 
-            '<i class="fas fa-check-double"></i> Tất cả';
+            '<i class="fas fa-times"></i> Bỏ chọn hiển thị' : 
+            `<i class="fas fa-check-double"></i> Chọn hiển thị (${visibleCards.length})`;
+    }
+
+    function getVisiblePackageIds() {
+        return Array.from(document.querySelectorAll('#packageListContainer .package-card'))
+            .map(card => card.id.replace('card-', ''));
     }
 
     function toggleSelectAll() {
-        const visibleCards = document.querySelectorAll('.package-card:not([style*="display: none"])');
-        const allSelected = Array.from(visibleCards).every(card => 
-            batchSelected.has(card.id.replace('card-', ''))
-        );
-        
-        visibleCards.forEach(card => {
-            const pkgId = card.id.replace('card-', '');
-            const checkbox = card.querySelector('.cmd-checkbox');
-            
-            if (!checkbox) return;
-            
-            if (allSelected) {
-                // Unselect all
-                if (batchSelected.has(pkgId)) {
-                    checkbox.checked = false;
-                    handleCheckboxClick(false, pkgId);
-                }
-            } else {
-                // Select all unselected
-                if (!batchSelected.has(pkgId)) {
-                    checkbox.checked = true;
-                    handleCheckboxClick(true, pkgId);
-                }
-            }
-        });
+        const ids = getVisiblePackageIds();
+        if (ids.length === 0) return;
+
+        const allSelected = ids.every(pkgId => batchSelected.has(pkgId));
+        bulkSetSelection(ids, !allSelected);
     }
 
     // ========== 5. DATA LOADING FUNCTIONS ==========
@@ -2041,18 +3063,22 @@
             const totalCount = allPackages.length;
             const totalTarget = allPackages.reduce((sum, p) => sum + p.target, 0);
             
-            document.getElementById('totalCount').textContent = totalCount;
-            document.getElementById('filteredCount').textContent = totalCount;
+            document.getElementById('totalCount').textContent = formatNumber(totalCount);
+            document.getElementById('filteredCount').textContent = formatNumber(totalCount);
             
             // Update summary banner
-            document.getElementById('summaryPackageCount').textContent = totalCount;
-            document.getElementById('summaryTarget').textContent = totalTarget.toLocaleString();
+            document.getElementById('summaryPackageCount').textContent = formatNumber(totalCount);
+            document.getElementById('summaryTarget').textContent = formatNumber(totalTarget);
             document.getElementById('summaryActual').textContent = "0";
             document.getElementById('summaryPercent').textContent = "(0%)";
             document.getElementById('loadingSummary').classList.remove('hidden');
+
+            const progressFill = document.getElementById('summaryProgressFill');
+            if (progressFill) progressFill.style.width = '0%';
             
             populateLineFilter();
             renderPackageList(allPackages);
+            updateFilterCounts();
             updateSelectAllButton();
             
             // Sync statuses in background
@@ -2076,11 +3102,17 @@
             const numB = (b.match(/(\d+)/)||[])[0] ? parseInt((b.match(/(\d+)/)||[])[0]) : 9999;
             return numA - numB;
         });
+
+        const lineCounts = allPackages.reduce((counts, pkg) => {
+            counts[pkg.line] = (counts[pkg.line] || 0) + 1;
+            return counts;
+        }, {});
         
         const select = document.getElementById('lineFilter');
-        select.innerHTML = '<option value="all">Tất cả Line</option>';
+        select.innerHTML = `<option value="all">Tất cả Line (${allPackages.length})</option>`;
         lines.forEach(line => {
-            select.innerHTML += `<option value="${line}">Line ${line}</option>`;
+            const safeLine = escapeHtml(line);
+            select.innerHTML += `<option value="${safeLine}">Line ${safeLine} (${lineCounts[line] || 0})</option>`;
         });
     }
 
@@ -2117,7 +3149,7 @@
             return true;
         });
         
-        document.getElementById('filteredCount').textContent = filtered.length;
+        document.getElementById('filteredCount').textContent = formatNumber(filtered.length);
         renderPackageList(filtered);
     }
 
@@ -2194,13 +3226,31 @@
             return numA - numB;
         });
 
+        // Đếm số gói theo Line để hiển thị trên header
+        const lineTotals = new Map();
+        list.forEach(p => lineTotals.set(p.line, (lineTotals.get(p.line) || 0) + 1));
+
         list.forEach(p => {
             // Add line header if needed
             if (p.line !== currentLine) {
                 currentLine = p.line;
+                const lineTotal = lineTotals.get(p.line) || 0;
+                const lineSelected = list.filter(item => item.line === p.line && batchSelected.has(item.id)).length;
+                const safeLine = escapeHtml(p.line);
+
                 lineHeader = document.createElement('div');
                 lineHeader.className = 'line-header';
-                lineHeader.textContent = `LINE ${currentLine}`;
+                lineHeader.dataset.line = p.line;
+                lineHeader.innerHTML = `
+                    <label class="line-header-left">
+                        <input type="checkbox" class="line-checkbox" aria-label="Chọn tất cả gói Line ${safeLine}">
+                        <span class="line-header-title">LINE ${safeLine}</span>
+                    </label>
+                    <span class="line-header-count">${lineSelected}/${lineTotal} đã chọn</span>
+                `;
+                const lineCheckbox = lineHeader.querySelector('.line-checkbox');
+                lineCheckbox.checked = lineTotal > 0 && lineSelected === lineTotal;
+                lineCheckbox.indeterminate = lineSelected > 0 && lineSelected < lineTotal;
                 fragment.appendChild(lineHeader);
             }
 
@@ -2215,50 +3265,86 @@
             const card = document.createElement('div');
             card.className = `package-card ${isSelected ? 'selected' : ''}`;
             card.id = `card-${p.id}`;
+            card.dataset.line = p.line;
             
             card.innerHTML = `
-                <div class="col-img" 
-                     ${fullUrl ? `onmouseenter="showImagePreview(event, '${fullUrl}', '${safeCaption}')" onmouseleave="hideImagePreview()"` : ''}>
-                    <img src="${thumbUrl}" class="pkg-img" 
-                         onerror="this.src='https://placehold.co/100?text=No+Img'"
-                         alt="${p.style}">
-                </div>
-                <div class="col-info">
-                    <div class="pkg-id">${p.id}</div>
-                    <div class="pkg-style">${p.style}</div>
-                    <div class="tags">
-                        <span class="tag tag-line">Line ${p.line}</span>
-                        <span class="tag tag-target">Target: ${p.target}</span>
-                        ${p.color ? `<span class="tag tag-color"><i class="fas fa-palette"></i> ${p.color}</span>` : ''}
-                    </div>
-                </div>
-                <div class="col-status" id="status-${p.id}">
-                    ${p.loading
-                        ? '<div style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px;"><div class="loader" style="width:14px;height:14px;border-width:2px;"></div><div style="width:50px;height:10px;background:var(--gray-200);border-radius:4px;animation:pulse 1.5s ease infinite;"></div></div>'
-                        : '<div class="loader" style="width:14px;height:14px;border-width:2px;"></div><div style="font-size:9px;color:var(--gray-500);margin-top:4px;font-weight:600;">Target: ' + p.target + '</div>'
-                    }
-                </div>
-                <div class="col-cmd ${config.shift === 'ot' ? 'mode-ot' : ''} ${isSelected ? '' : 'disabled-overlay'}" id="cmd-${p.id}">
-                    <div class="cmd-checkbox-wrapper">
-                        <input type="checkbox" class="cmd-checkbox" 
+                <div class="card-main">
+                    <div class="col-select">
+                        <input type="checkbox" class="cmd-checkbox"
+                               aria-label="Chọn gói ${p.id}"
                                ${isSelected ? 'checked' : ''}>
                     </div>
-                    <div class="segment-control">
-                        <button class="segment-btn hc ${config.shift === 'morning' ? 'active' : ''}">
-                            <i class="fas fa-sun"></i> HC
-                        </button>
-                        <button class="segment-btn ot ${config.shift === 'ot' ? 'active' : ''}">
-                            <i class="fas fa-moon"></i> OT
-                        </button>
+                    <div class="col-img"
+                         ${fullUrl ? `onmouseenter="showImagePreview(event, '${fullUrl}', '${safeCaption}')" onmouseleave="hideImagePreview()"` : ''}>
+                        <img src="${thumbUrl}" class="pkg-img"
+                             onerror="this.src='https://placehold.co/100?text=No+Img'"
+                             alt="${p.style}">
                     </div>
-                    <div class="input-row">
-                        <span style="font-size:10px;font-weight:600;color:var(--gray-600);">Giờ làm:</span>
-                        <input type="number" class="hour-input" id="input-${p.id}" 
-                               value="${config.hours}" step="0.5" min="0.5" max="14">
+                    <div class="col-info">
+                        <div class="pkg-top-row">
+                            <span class="pkg-id">${p.id}</span>
+                            <span class="tag tag-line"><i class="fas fa-layer-group"></i> Line ${p.line}</span>
+                        </div>
+                        <div class="pkg-style" title="${escapeHtml(p.style)}">${p.style}</div>
+                        <div class="tags">
+                            <span class="tag tag-target"><i class="fas fa-bullseye"></i> Target: ${formatNumber(p.target)}</span>
+                            ${p.color ? `<span class="tag tag-color" title="${escapeHtml(p.color)}"><i class="fas fa-palette"></i> ${p.color}</span>` : ''}
+                            ${p.buyer && p.buyer !== 'N/A' ? `<span class="tag tag-buyer"><i class="fas fa-user-tie"></i> ${p.buyer}</span>` : ''}
+                        </div>
                     </div>
-                    <div class="quick-options ${config.shift === 'morning' ? 'hidden' : ''}" id="ot-opts-${p.id}">
-                        <button class="btn-tiny ${config.otMode === '3h' ? 'active' : ''}">3h Cuối</button>
-                        <button class="btn-tiny ${config.otMode === '11h' ? 'active' : ''}">11h Đều</button>
+                    <div class="col-status" id="status-${p.id}">
+                        ${p.loading
+                            ? '<div class="status-loading-skeleton"><div class="loader-sm"></div><span>Đang đồng bộ...</span></div>'
+                            : '<div class="loader-sm"></div>'
+                        }
+                    </div>
+                    <div class="col-shift">
+                        <div class="shift-picker-wrapper">
+                            <select class="shift-quick-select ${config.shift === 'ot' ? 'is-ot' : ''}"
+                                    id="select-${p.id}"
+                                    data-pkg-id="${p.id}"
+                                    title="Chọn ca và giờ làm việc">
+                                <option value="morning" ${config.shift === 'morning' && config.hours === 7.5 ? 'selected' : ''}>☀️ Ca sáng (7.5h)</option>
+                                <option value="ot_3h" ${config.shift === 'ot' && config.otMode === '3h' && config.hours === 3 ? 'selected' : ''}>🌙 OT 3 giờ (3h)</option>
+                                <option value="ot_11h" ${config.shift === 'ot' && config.otMode === '11h' && config.hours === 11 ? 'selected' : ''}>🌙 OT 11 giờ (11h)</option>
+                                <option value="custom" ${(config.shift === 'morning' && config.hours !== 7.5) || (config.shift === 'ot' && config.hours !== 3 && config.hours !== 11) ? 'selected' : ''}>⚙️ Tùy chỉnh (${config.hours}h)</option>
+                            </select>
+                            <button type="button" class="shift-toggle-btn ${config.shift === 'ot' ? 'is-ot' : ''}"
+                                    data-shift-toggle aria-expanded="false"
+                                    aria-controls="cmd-${p.id}"
+                                    title="Mở bảng chỉnh giờ chi tiết">
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        <span class="shift-hint shift-hint-${p.id}">${(config.shift === 'morning' && config.hours !== 7.5) || (config.shift === 'ot' && config.hours !== 3 && config.hours !== 11) ? `Đang chỉnh: ${config.hours} giờ` : 'Bấm để chỉnh giờ'}</span>
+                    </div>
+                </div>
+                <div class="card-config ${isSelected ? '' : 'disabled-overlay'}" id="cmd-${p.id}" aria-hidden="true">
+                    <div class="config-note">${isSelected ? '<i class="fas fa-check-circle" style="color:var(--emerald-600)"></i> Áp dụng cho gói này' : 'Chọn gói để cấu hình'}</div>
+                    <div class="card-config-right">
+                        <div class="config-field">
+                            <span class="config-label">Ca</span>
+                            <div class="segment-control">
+                                <button type="button" class="segment-btn hc ${config.shift === 'morning' ? 'active' : ''}">
+                                    <i class="fas fa-sun"></i> Sáng
+                                </button>
+                                <button type="button" class="segment-btn ot ${config.shift === 'ot' ? 'active' : ''}">
+                                    <i class="fas fa-moon"></i> OT
+                                </button>
+                            </div>
+                        </div>
+                        <div class="config-field">
+                            <span class="config-label">OT</span>
+                            <div class="quick-options ${config.shift === 'morning' ? 'hidden' : ''}" id="ot-opts-${p.id}">
+                                <button type="button" class="btn-tiny ${config.otMode === '3h' ? 'active' : ''}">3 giờ</button>
+                                <button type="button" class="btn-tiny ${config.otMode === '11h' ? 'active' : ''}">11 giờ</button>
+                            </div>
+                        </div>
+                        <div class="config-field">
+                            <span class="config-label">Giờ</span>
+                            <input type="number" class="hour-input" id="input-${p.id}"
+                                   value="${config.hours}" step="0.5" min="0.5" max="14">
+                        </div>
                     </div>
                 </div>
             `;
@@ -2323,11 +3409,23 @@
                 // Update summary banner
                 const totalTarget = list.reduce((sum, pkg) => sum + pkg.target, 0);
                 const percent = totalTarget > 0 ? Math.floor((grandTotalActual/totalTarget)*100) : 0;
-                document.getElementById('summaryActual').textContent = grandTotalActual.toLocaleString();
-                document.getElementById('summaryPercent').textContent = '(' + percent + '%)';
-                
-                const actualContainer = document.getElementById('summaryActualContainer');
-                actualContainer.style.color = percent >= 100 ? '#2e7d32' : (percent >= 50 ? '#ff9800' : '#e65100');
+                const actualEl = document.getElementById('summaryActual');
+                const percentEl = document.getElementById('summaryPercent');
+                const progressFill = document.getElementById('summaryProgressFill');
+                const levelColor = percent >= 100 ? '#2E7D32' : (percent >= 50 ? '#F59E0B' : '#E65100');
+
+                if (actualEl) {
+                    actualEl.textContent = formatNumber(grandTotalActual);
+                    actualEl.style.color = levelColor;
+                }
+                if (percentEl) {
+                    percentEl.textContent = '(' + percent + '%)';
+                    percentEl.style.color = levelColor;
+                }
+                if (progressFill) {
+                    progressFill.style.width = Math.min(100, percent) + '%';
+                    progressFill.style.background = levelColor;
+                }
 
             } catch (err) {
                 console.warn(`Status sync failed for ${p.id}:`, err);
@@ -2358,28 +3456,91 @@
             diff = p.actual - p.target;
             if (diff === 0) {
                 statusClass = 'st-done';
-                statusText = 'Đủ';
+                statusText = 'Đủ target';
             } else if (diff > 0) {
                 statusClass = 'st-over';
-                statusText = `Vượt ${diff}`;
+                statusText = `Vượt ${formatNumber(diff)}`;
             } else {
                 statusClass = 'st-miss';
-                statusText = `Thiếu ${Math.abs(diff)}`;
+                statusText = `Thiếu ${formatNumber(Math.abs(diff))}`;
             }
         }
 
-        // Update UI
+        // Update UI with visual mini-progress bar & status badges
+        const actual = p.actual || 0;
+        const target = p.target || 0;
+        const pct = target > 0 ? Math.min(100, Math.round((actual / target) * 100)) : 0;
+
         statusEl.className = `col-status ${statusClass}`;
         statusEl.innerHTML = `
             <div class="status-display">
-                <div class="qty-fraction">${p.actual} / ${p.target}</div>
-                <div class="status-text">${statusText}</div>
-                ${p.hasOT ? `<div class="ot-badge" style="margin-top:4px;">OT: ${p.otAchieved}</div>` : ''}
+                <div class="qty-fraction">
+                    <span><span class="qty-actual">${formatNumber(actual)}</span><span class="qty-sep">/</span><span class="qty-target">${formatNumber(target)}</span></span>
+                    <span class="qty-pct">${pct}%</span>
+                </div>
+                <div class="card-mini-bar" title="Tiến độ thực tế: ${pct}%">
+                    <div class="card-mini-bar-fill" style="width: ${pct}%"></div>
+                </div>
+                <div class="status-meta">
+                    <span class="status-text">${statusText}</span>
+                    ${p.hasOT ? `<span class="ot-badge" title="Sản lượng OT đã đạt"><i class="fas fa-moon"></i> ${formatNumber(p.otAchieved)}</span>` : ''}
+                </div>
             </div>
         `;
     }
 
     // ========== 9. UTILITY FUNCTIONS ==========
+    function escapeHtml(value) {
+        return String(value ?? '').replace(/[&<>"']/g, ch => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        }[ch]));
+    }
+
+    function showToast(message, icon = 'info') {
+        if (typeof Swal === 'undefined') {
+            console.warn(message);
+            return;
+        }
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon,
+            title: message,
+            showConfirmButton: false,
+            timer: 2200,
+            timerProgressBar: true
+        });
+    }
+
+    function setText(id, value) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
+    }
+
+    const VI_NUMBER_FORMAT = new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 0 });
+    const VI_HOURS_FORMAT = new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 1 });
+
+    function formatNumber(value) {
+        return VI_NUMBER_FORMAT.format(Number(value) || 0);
+    }
+
+    function formatHours(value) {
+        return VI_HOURS_FORMAT.format(Number(value) || 0) + ' giờ';
+    }
+
+    function shiftSummary(cfg) {
+        if (!cfg) return 'Ca sáng';
+        if (cfg.shift === 'ot') {
+            const label = cfg.otMode === '11h' ? 'OT 11 giờ' : 'OT 3 giờ';
+            return `${label} · ${formatHours(cfg.hours)}`;
+        }
+        return `Ca sáng · ${formatHours(cfg.hours)}`;
+    }
+
     function saveConfig() {
         localStorage.setItem('mesFactory', document.getElementById('factory').value);
     }
@@ -2396,70 +3557,229 @@
         updateSummary();
     }
 
-    function setAllToMorning() {
+    function applyBulkShift(shift, otMode) {
+        if (batchSelected.size === 0) {
+            showToast('Chưa chọn gói nào. Hãy tick gói trước khi áp dụng.', 'warning');
+            return;
+        }
+
+        const hours = shift === 'morning' ? 7.5 : (otMode === '11h' ? 11 : 3);
         batchSelected.forEach(pkgId => {
-            batchConfigs[pkgId] = { shift: 'morning', otMode: '3h', hours: 7.5 };
+            batchConfigs[pkgId] = {
+                shift,
+                otMode: shift === 'ot' ? otMode : '3h',
+                hours
+            };
             refreshCardUI(pkgId);
         });
         updateSummary();
+
+        const label = shift === 'morning' ? 'Ca sáng' : (otMode === '11h' ? 'OT 11 giờ' : 'OT 3 giờ');
+        showToast(`Đã áp dụng ${label} cho ${batchSelected.size} gói`, 'success');
+    }
+
+    function setAllToMorning() {
+        applyBulkShift('morning');
     }
 
     function setAllToOT3h() {
-        batchSelected.forEach(pkgId => {
-            batchConfigs[pkgId] = { shift: 'ot', otMode: '3h', hours: 3 };
-            refreshCardUI(pkgId);
+        applyBulkShift('ot', '3h');
+    }
+
+    function setAllToOT11h() {
+        applyBulkShift('ot', '11h');
+    }
+
+    function clearSelection() {
+        // Đặt lại toàn bộ gói đã chọn về ca sáng 7.5h và bỏ tick
+        const currentlySelected = Array.from(batchSelected);
+        currentlySelected.forEach(pkgId => {
+            applySelectionState(pkgId, false);
         });
-        updateSummary();
+        batchSelected.clear();
+        batchConfigs = {};
+        updateSelectionUI();
     }
 
     function resetAllSelections() {
-        batchSelected.clear();
-        batchConfigs = {};
-        renderPackageList(allPackages.filter(p => 
-            document.getElementById(`card-${p.id}`)?.style.display !== 'none'
-        ));
+        const count = batchSelected.size;
+        if (count === 0) {
+            showToast('Chưa có gói nào được chọn.', 'info');
+            return;
+        }
+
+        if (typeof Swal === 'undefined') {
+            clearSelection();
+            return;
+        }
+
+        Swal.fire({
+            icon: 'question',
+            title: 'Bỏ chọn tất cả gói?',
+            html: `Bạn đang chọn <b>${formatNumber(count)} gói</b>.<br>Toàn bộ gói sẽ được bỏ chọn và đặt lại cấu hình về <b>Ca sáng (7.5h)</b>.`,
+            showCancelButton: true,
+            confirmButtonText: '<i class="fas fa-trash-alt"></i> Bỏ chọn tất cả',
+            cancelButtonText: 'Giữ lại',
+            confirmButtonColor: '#EF4444',
+            cancelButtonColor: '#64748B',
+            reverseButtons: true
+        }).then(result => {
+            if (!result.isConfirmed) return;
+
+            clearSelection();
+            showToast(`Đã bỏ chọn và đặt lại ${formatNumber(count)} gói về ca sáng`, 'success');
+        });
+    }
+
+    function getSelectionStats() {
+        const stats = {
+            total: 0,
+            morning: 0,
+            ot3h: 0,
+            ot11h: 0,
+            otTotal: 0,
+            target: 0,
+            otTarget: 0,
+            hours: 0,
+            otHours: 0
+        };
+        const pkgMap = new Map(allPackages.map(pkg => [pkg.id, pkg]));
+
+        batchSelected.forEach(pkgId => {
+            const pkg = pkgMap.get(pkgId);
+            const cfg = batchConfigs[pkgId];
+            if (!pkg || !cfg) return;
+
+            const hours = Number(cfg.hours) || 0;
+            stats.total++;
+            stats.target += pkg.target || 0;
+            stats.hours += hours;
+
+            if (cfg.shift === 'ot') {
+                stats.otTotal++;
+                stats.otTarget += pkg.target || 0;
+                stats.otHours += hours;
+                if (cfg.otMode === '11h') stats.ot11h++;
+                else stats.ot3h++;
+            } else {
+                stats.morning++;
+            }
+        });
+
+        return stats;
     }
 
     function updateSummary() {
-        let totalPackages = 0;
-        let totalQuantity = 0;
-        let totalHours = 0;
-        
+        const stats = getSelectionStats();
+        const totalCount = allPackages.length;
+
+        // Top KPI bar (5 chỉ số)
+        setText('totalCount', formatNumber(totalCount));
+        setText('sumCount', formatNumber(stats.total));
+        setText('sumCountTotal', formatNumber(totalCount));
+        setText('sumQty', formatNumber(stats.target));
+        setText('sumHours', formatHours(stats.hours));
+        setText('sumOTCount', formatNumber(stats.otTotal));
+        setText('sumOTBreakdown', `3 giờ ${formatNumber(stats.ot3h)} · 11 giờ ${formatNumber(stats.ot11h)}`);
+
+        // Top action buttons update
+        setText('barProcessCount', formatNumber(stats.total));
+        const btnProcess = document.getElementById('btnTopProcess');
+        if (btnProcess) btnProcess.disabled = stats.total === 0;
+        const btnClear = document.getElementById('btnTopClear');
+        if (btnClear) btnClear.disabled = stats.total === 0;
+
+        // Sticky selection bar (if present)
+        setText('barSelectedCount', formatNumber(stats.total));
+        setText('barSelectedTotal', `/${formatNumber(totalCount)}`);
+        setText('barMorningCount', formatNumber(stats.morning));
+        setText('barOt3hCount', formatNumber(stats.ot3h));
+        setText('barOt11hCount', formatNumber(stats.ot11h));
+        setText('barTarget', formatNumber(stats.target));
+        setText('barOTTarget', formatNumber(stats.otTarget));
+        setText('barHours', formatHours(stats.hours));
+
+        // Gói đang chọn nhưng nằm ngoài bộ lọc hiện tại
+        const visibleIds = new Set(getVisiblePackageIds());
+        let hiddenSelected = 0;
         batchSelected.forEach(pkgId => {
-            const pkg = allPackages.find(p => p.id === pkgId);
-            const cfg = batchConfigs[pkgId];
-            
-            if (pkg && cfg) {
-                totalPackages++;
-                totalQuantity += pkg.target;
-                totalHours += cfg.hours;
-            }
+            if (!visibleIds.has(pkgId)) hiddenSelected++;
         });
-        
-        // Update UI
-        document.getElementById('sumCount').textContent = totalPackages;
-        document.getElementById('sumQty').textContent = totalQuantity.toLocaleString();
-        document.getElementById('sumHours').textContent = totalHours.toFixed(1) + 'h';
-        
-        // Calculate completion rate
-        const totalVisible = allPackages.filter(p => 
-            document.getElementById(`card-${p.id}`)?.style.display !== 'none'
-        ).length;
-        const selectedCount = batchSelected.size;
-        const completionRate = totalVisible > 0 ? Math.round((selectedCount / totalVisible) * 100) : 0;
-        document.getElementById('completionRate').textContent = completionRate + '%';
-        
-        // Enable/disable process button with pulse animation
-        const processBtn = document.getElementById('processBtn');
-        processBtn.disabled = totalPackages === 0;
-        processBtn.classList.toggle('pulse', totalPackages > 0);
+        document.getElementById('barHiddenSelectedChip')?.classList.toggle('hidden', hiddenSelected === 0);
+        setText('barHiddenSelected', formatNumber(hiddenSelected));
+
+        document.getElementById('selectionBar')?.classList.toggle('visible', stats.total > 0);
+
+        updateLineHeaderStates();
     }
 
-    // Count and update OT stats
+    function updateLineHeaderStates() {
+        const cards = Array.from(document.querySelectorAll('#packageListContainer .package-card'));
+
+        document.querySelectorAll('#packageListContainer .line-header').forEach(header => {
+            const line = header.dataset.line;
+            const lineCards = cards.filter(card => card.dataset.line === line);
+            const total = lineCards.length;
+            const selected = lineCards.filter(card => batchSelected.has(card.id.replace('card-', ''))).length;
+            const checkbox = header.querySelector('.line-checkbox');
+
+            if (checkbox) {
+                checkbox.disabled = total === 0;
+                checkbox.checked = total > 0 && selected === total;
+                checkbox.indeterminate = selected > 0 && selected < total;
+            }
+
+            const countEl = header.querySelector('.line-header-count');
+            if (countEl) countEl.textContent = `${selected}/${total} đã chọn`;
+        });
+    }
+
+    // Count and update OT stats (dữ liệu từ API, không phải gói đang chọn)
     function updateOTCount() {
         const loaded = allPackages.filter(p => !p.loading);
         const otCount = loaded.filter(p => p.hasOT).length;
-        document.getElementById('summaryOTCount').textContent = otCount;
+        setText('summaryOTCount', formatNumber(otCount));
+        updateFilterCounts();
+    }
+
+    function updateFilterCounts() {
+        const total = allPackages.length;
+        const loaded = allPackages.filter(p => !p.loading);
+        const pending = allPackages.filter(p => p.loading || !p.actual).length;
+        const done = loaded.filter(p => p.actual > 0 && p.actual === p.target).length;
+        const over = loaded.filter(p => p.actual > p.target).length;
+        const miss = loaded.filter(p => p.actual > 0 && p.actual < p.target).length;
+        const hasOT = loaded.filter(p => p.hasOT).length;
+        const noOT = loaded.length - hasOT;
+
+        setSelectOptionCounts('statusFilter', {
+            all: total,
+            pending,
+            done,
+            over,
+            miss
+        });
+        setSelectOptionCounts('otFilter', {
+            all: total,
+            hasOT,
+            noOT
+        });
+    }
+
+    function setSelectOptionCounts(selectId, counts) {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+
+        Array.from(select.options).forEach(option => {
+            if (!option.dataset.baseLabel) {
+                option.dataset.baseLabel = option.textContent.replace(/\s*\(\d+\)\s*$/, '');
+            }
+
+            const baseLabel = option.dataset.baseLabel;
+            option.textContent = counts[option.value] !== undefined
+                ? `${baseLabel} (${formatNumber(counts[option.value])})`
+                : baseLabel;
+        });
     }
 
     // ========== 10. BATCH PROCESSING FUNCTIONS ==========
@@ -2601,7 +3921,10 @@
 
     // ========== 11. MODAL FUNCTIONS ==========
     function showBatchPreview() {
-        if (batchSelected.size === 0) return;
+        if (batchSelected.size === 0) {
+            showToast('Chưa chọn gói nào để xử lý.', 'warning');
+            return;
+        }
         
         const modal = document.getElementById('batchPreviewModal');
         const content = document.getElementById('batchPreviewContent');
@@ -2613,9 +3936,9 @@
         // THÔNG TIN PHÂN BỔ
         previewHtml += '<div style="margin-bottom: 15px; padding: 10px; background: #e8f5e9; border-radius: 6px; border: 1px solid #4CAF50; font-size: 13px;">';
         previewHtml += '<strong><i class="fas fa-info-circle"></i> THÔNG TIN PHÂN BỔ:</strong><br>';
-        previewHtml += '☀️ <b>Ca Sáng</b>: Tối đa 7.5h (bỏ slot nghỉ trưa)<br>';
-        previewHtml += '🌙 <b>Ca OT 3h</b>: Chỉ 3h cuối<br>';
-        previewHtml += '🌙 <b>Ca OT 11h</b>: Ưu tiên OT trước, rồi đến sáng<br>';
+        previewHtml += '☀️ <b>Ca sáng</b>: Tối đa 7,5 giờ (bỏ slot nghỉ trưa)<br>';
+        previewHtml += '🌙 <b>OT 3 giờ</b>: Chỉ 3 giờ cuối<br>';
+        previewHtml += '🌙 <b>OT 11 giờ</b>: Ưu tiên OT trước, rồi đến ca sáng<br>';
         previewHtml += '✅ <b>Đảm bảo tổng sản lượng = Target</b>';
         previewHtml += '</div>';
         
@@ -2660,22 +3983,22 @@
                                     <i class="fas fa-industry"></i> Line ${pkg.line}
                                 </span>
                                 <span style="font-weight: 500; background: #f0f4f8; padding: 2px 6px; border-radius: 4px;">
-                                    <i class="fas fa-bullseye"></i> Target: ${pkg.target}
+                                    <i class="fas fa-bullseye"></i> Target: ${formatNumber(pkg.target)}
                                 </span>
                                 <span style="font-weight: 500; background: ${cfg.shift === 'ot' ? '#f3e5f5' : '#fff3e0'}; padding: 2px 6px; border-radius: 4px;">
                                     <i class="fas ${cfg.shift === 'ot' ? 'fa-moon' : 'fa-sun'}"></i> 
-                                    ${cfg.shift === 'ot' ? 'Ca OT' : 'Ca Sáng'}
+                                    ${cfg.shift === 'ot' ? (cfg.otMode === '11h' ? 'OT 11 giờ' : 'OT 3 giờ') : 'Ca sáng'}
                                 </span>
                             </div>
                         </div>
                     </div>
                     <div style="font-size: 13px; font-weight: 500; padding: 8px; background: #e3f2fd; border-radius: 6px; border: 1px solid #bbdefb;">
-                        <strong>Phân bổ sản lượng (${totalHours}h → ${slotsUsed} slot):</strong> 
+                        <strong>Phân bổ sản lượng (${formatHours(totalHours)} → ${slotsUsed} slot):</strong> 
                         <div style="font-size: 12px; font-family: monospace; margin: 4px 0; padding: 6px; background: white; border-radius: 4px;">
                             ${distribution.join(', ')}
                         </div>
                         <div style="font-size: 13px; font-weight: bold; padding: 6px; background: ${isExact ? '#e8f5e9' : '#fff3e0'}; border-radius: 4px; border: 1px solid ${isExact ? '#c8e6c9' : '#ffcc80'}; color: ${isExact ? '#2e7d32' : '#e65100'}; margin-top: 5px;">
-                            ✓ TỔNG: <b>${sum}</b> cái ${isExact ? '(✅ CHÍNH XÁC)' : '(⚠️ SAI SỐ: ' + difference + ')'}
+                            ✓ TỔNG: <b>${formatNumber(sum)}</b> cái ${isExact ? '(✅ CHÍNH XÁC)' : '(⚠️ SAI SỐ: ' + formatNumber(difference) + ')'}
                         </div>
                     </div>
                 </div>`;
@@ -2695,16 +4018,16 @@
                 <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 600;">
                     <div style="text-align: center; flex: 1;">
                         <div>Số gói</div>
-                        <div style="font-size: 18px; color: #1565c0; margin-top: 3px;">${batchSelected.size}</div>
+                        <div style="font-size: 18px; color: #1565c0; margin-top: 3px;">${formatNumber(batchSelected.size)}</div>
                     </div>
                     <div style="text-align: center; flex: 1;">
                         <div>Tổng Target</div>
-                        <div style="font-size: 18px; color: #1565c0; margin-top: 3px;">${totalQty}</div>
+                        <div style="font-size: 18px; color: #1565c0; margin-top: 3px;">${formatNumber(totalQty)}</div>
                     </div>
                 </div>
                 <div style="margin-top: 10px; padding: 8px; background: ${isTotalExact ? '#e8f5e9' : '#fff3e0'}; border-radius: 6px; border: 1px solid ${isTotalExact ? '#c8e6c9' : '#ffcc80'}; text-align: center; font-size: 12px;">
-                    <strong>TỔNG DỰ KIẾN GỬI:</strong> <span style="font-size: 16px; color: ${isTotalExact ? '#2e7d32' : '#e65100'}">${totalSum}</span> / ${totalTarget} 
-                    ${isTotalExact ? '✅' : `⚠️ (Lệch: ${totalTarget - totalSum})`}
+                    <strong>TỔNG DỰ KIẾN GỬI:</strong> <span style="font-size: 16px; color: ${isTotalExact ? '#2e7d32' : '#e65100'}">${formatNumber(totalSum)}</span> / ${formatNumber(totalTarget)} 
+                    ${isTotalExact ? '✅' : `⚠️ (Lệch: ${formatNumber(totalTarget - totalSum)})`}
                 </div>
             </div>
         `;
@@ -2870,10 +4193,10 @@
                                 Line ${pkg.line}
                             </span>
                             <span style="background: #FFF3E0; color: #EF6C00; padding: 2px 8px; border-radius: 4px; font-weight: 600;">
-                                Target: ${pkg.target}
+                                Target: ${formatNumber(pkg.target)}
                             </span>
                             <span style="background: ${cfg.shift === 'ot' ? '#F3E5F5' : '#E3F2FD'}; color: ${cfg.shift === 'ot' ? '#9C27B0' : '#1976D2'}; padding: 2px 8px; border-radius: 4px; font-weight: 600;">
-                                ${cfg.shift === 'ot' ? 'Ca OT' : 'Ca Sáng'}
+                                ${cfg.shift === 'ot' ? (cfg.otMode === '11h' ? 'OT 11 giờ' : 'OT 3 giờ') : 'Ca sáng'}
                             </span>
                         </div>
                     </div>
@@ -2935,14 +4258,14 @@
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px;">
                     <!-- Card 1: Tổng Sản Lượng -->
                     <div style="background: #F1F8E9; padding: 15px; border-radius: 10px; text-align: center; border: 1px solid #C8E6C9;">
-                        <div style="color: #558B2F; font-size: 28px; font-weight: 800; line-height: 1;">${totalQty.toLocaleString()}</div>
+                        <div style="color: #558B2F; font-size: 28px; font-weight: 800; line-height: 1;">${formatNumber(totalQty)}</div>
                         <div style="color: #33691E; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-top: 5px;">Tổng Sản Lượng (pcs)</div>
                     </div>
                     
                     <!-- Card 2: Tổng Giờ -->
                     <div style="background: #E3F2FD; padding: 15px; border-radius: 10px; text-align: center; border: 1px solid #BBDEFB;">
-                        <div style="color: #1565C0; font-size: 28px; font-weight: 800; line-height: 1;">${totalHours.toFixed(1)}h</div>
-                        <div style="color: #0D47A1; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-top: 5px;">Tổng Giờ Công</div>
+                        <div style="color: #1565C0; font-size: 28px; font-weight: 800; line-height: 1;">${formatHours(totalHours)}</div>
+                        <div style="color: #0F172A; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-top: 5px;">Tổng Giờ Công</div>
                     </div>
                 </div>
 
@@ -2957,7 +4280,7 @@
                         <div style="font-size: 10px; color: #9E9E9E;">Tỷ Lệ</div>
                     </div>
                     <div style="text-align: center; flex: 1;">
-                        <div style="font-size: 18px; font-weight: 700; color: #424242;">${totalHours.toFixed(1)}h</div>
+                        <div style="font-size: 18px; font-weight: 700; color: #424242;">${formatHours(totalHours)}</div>
                         <div style="font-size: 10px; color: #9E9E9E;">Tổng Giờ</div>
                     </div>
                 </div>
@@ -3005,3 +4328,5 @@
 </script>
 </body>
 </html>
+
+
