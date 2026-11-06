@@ -2469,8 +2469,11 @@ body {
     };
 
     // Auth endpoints — through proxy /auth/*
+    // Tên action phải khớp 100% với Router của Auth Worker:
+    //   verify           → /auth/verify
+    //   validate-session → /auth/validate-session   (KHÔNG phải "/auth/validate")
     const WORKER_LOGIN_ENDPOINT = BASE_URL + "/auth/verify";
-    const WORKER_VALIDATE_ENDPOINT = BASE_URL + "/auth/validate";
+    const WORKER_VALIDATE_ENDPOINT = BASE_URL + "/auth/validate-session";
 
     // ========== AUTH FUNCTIONS ==========
 
@@ -2495,8 +2498,12 @@ body {
         document.getElementById('logoutBtn').style.display = 'inline-flex';
     }
 
-    // Check session on page load
-    async function checkSessionSession() {
+    // Check session on page load — NETWORK-RESILIENT.
+    // Khi xảy ra lỗi tạm thời (mất mạng cục bộ, timeout, server trả 5xx, body
+    // không hợp lệ) hệ thống KHÔNG xóa token và KHÔNG khóa giao diện → giữ UI mở,
+    // giữ phiên, tránh văng đăng nhập oan cho công nhân ở nhà xưởng mạng chập chờn.
+    // Chỉ khi server trả 401/403 (phiên thực sự hết hạn / bị thu hồi) mới lockUI().
+    async function checkSession() {
         const token = localStorage.getItem('token');
         if (!token) {
             lockUI();
@@ -2507,7 +2514,32 @@ body {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' }
             });
-            const data = await res.json();
+
+            // --- Lỗi phía server (5xx): tạm thời → GIỮ token, GIỮ UI mở ---
+            if (res.status >= 500) {
+                console.warn('[AUTH] [' + authTimestamp() + '] validate-session trả về ' + res.status + ' (lỗi server). Giữ phiên, không văng đăng nhập.');
+                unlockUI();
+                return;
+            }
+
+            // --- Từ chối dứt khoát (401/403): phiên thực sự hết hạn → lockUI ---
+            if (res.status === 401 || res.status === 403) {
+                lockUI();
+                console.warn('[AUTH] [' + authTimestamp() + '] Session has expired or been revoked from remote server. Relogin required.');
+                return;
+            }
+
+            // --- Phản hồi bình thường: parse body, quyết định theo success ---
+            let data;
+            try {
+                data = await res.json();
+            } catch (_) {
+                // Body không phải JSON ở status bất thường → xem như lỗi tạm thời
+                console.warn('[AUTH] [' + authTimestamp() + '] validate-session trả về body không hợp lệ (status ' + res.status + '). Giữ phiên, không văng đăng nhập.');
+                unlockUI();
+                return;
+            }
+
             if (data.success) {
                 unlockUI();
                 console.log('[AUTH] [' + authTimestamp() + '] Authentication session verified. Welcome back!');
@@ -2516,8 +2548,9 @@ body {
                 console.warn('[AUTH] [' + authTimestamp() + '] Session has expired or been revoked from remote server. Relogin required.');
             }
         } catch (err) {
-            lockUI();
-            console.warn('[AUTH] [' + authTimestamp() + '] Session has expired or been revoked from remote server. Relogin required.');
+            // --- Lỗi mạng / timeout / DNS / CORS: tạm thời → GIỮ token, GIỮ UI mở ---
+            console.warn('[AUTH] [' + authTimestamp() + '] Network error during session check (' + (err && err.message ? err.message : err) + '). Giữ phiên, không văng đăng nhập.');
+            unlockUI();
         }
     }
 
@@ -2612,7 +2645,7 @@ body {
     // ========== 2. INITIALIZATION ==========
     document.addEventListener('DOMContentLoaded', function() {
         // Run session check first (blocks UI if not authenticated)
-        checkSessionSession();
+        checkSession();
         
         // Set default date to today
         const today = new Date().toISOString().split('T')[0];
