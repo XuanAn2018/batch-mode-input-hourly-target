@@ -31,8 +31,12 @@
 - Chọn / bỏ chọn toàn bộ theo từng Line
 - Số lượng gói hiển thị trong bộ lọc Line, trạng thái và OT
 - Nút áp dụng nhanh OT 11 giờ cho các gói đã chọn
+- **Tổng quan ngay trên header từng Line**: tổng sản lượng (pcs) và phân bổ theo màu (kèm chấm màu trực quan), ví dụ `LINE01 · 205 pcs · màu BLACK 126 pcs · SAND 79 pcs`
+- **Sao chép nhanh mã mxpackage**: bấm trực tiếp vào mã gói (hoặc biểu tượng copy bên cạnh) để sao chép; hỗ trợ sao chép hàng loạt các gói đã tick qua nút **Copy mã** trên thanh công cụ (mỗi mã một dòng)
+- **Chuyển chế độ giao diện Sáng / Tối / Theo hệ thống**: cụm nút ngay trên header (biểu tượng ☀️ / 🌙 / ◐, nhãn "Giao diện"), mặc định **Theo hệ thống**; lựa chọn được lưu vào `localStorage` và tự đổi theo cài đặt hệ điều hành khi đang ở chế độ "Theo hệ thống". Áp dụng sớm trước khi render để tránh nháy sáng khi tải trang.
 
 ### Đã thay đổi
+- **Header Line dùng đúng tên Line từ hệ thống** (bỏ tiền tố "LINE" tự viết trước đây) và gộp số gói đã chọn về cùng một hàng
 - Tái cấu trúc giao diện theo hướng chuyên nghiệp: gộp 3 tầng thống kê còn 1 KPI bar 5 chỉ số
 - Thay banner tổng kết lớn bằng data strip mảnh, có thanh tiến độ thực tế / target
 - Card gói gọn lại; cấu hình ca/giờ mở rộng khi bấm vào nút ca
@@ -47,6 +51,8 @@
 - Reset không còn render lại toàn bộ danh sách
 
 ### Đã sửa
+- **Phân bổ OT 11 giờ**: điền sản lượng từ slot cuối (3 giờ OT) trở về trước, đảm bảo phần vượt luôn rơi đúng vào khung OT; bỏ đúng slot nghỉ cơm tối để đủ 11 slot làm việc (07:15 - 20:15)
+- **Xem trước phân bổ**: hiển thị đúng giá trị theo từng slot thời gian (trước đây hiển thị mảng chia chưa gắn slot) và bổ sung dòng "OT dự kiến"
 - Tách nhãn "OT khả dụng" (dữ liệu API) khỏi "OT đã chọn" (cấu hình batch)
 - Bỏ chọn tất cả có xác nhận và hỗ trợ hoàn tác trong 6 giây
 - Đóng cấu hình ca/giờ khi bỏ chọn gói

@@ -5,6 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0F172A">
     <title>MES Production - Batch Mode Pro v3.3</title>
+    <script>
+        // Áp dụng giao diện sớm để tránh nháy sáng khi tải trang
+        (function () {
+            try {
+                var choice = localStorage.getItem('mesThemeChoice') || 'system';
+                if (choice !== 'light' && choice !== 'dark' && choice !== 'system') choice = 'system';
+                var dark = choice === 'dark' || (choice === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                var root = document.documentElement;
+                root.setAttribute('data-theme', dark ? 'dark' : 'light');
+                root.setAttribute('data-theme-choice', choice);
+                root.style.colorScheme = dark ? 'dark' : 'light';
+            } catch (e) { /* ignore */ }
+        })();
+    </script>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%231976D2'/%3E%3Cstop offset='1' stop-color='%230D47A1'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='url(%23g)'/%3E%3Cpath d='M13 47V29l11 7V23l11 7V16l16 10v21H13z' fill='%23fff'/%3E%3Cpath d='M18 41h5v6h-5zM27 41h5v6h-5zM36 41h5v6h-5z' fill='%231565C0'/%3E%3C/svg%3E">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -97,6 +111,40 @@
     --font-mono: 'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
     --transition-fast: 0.12s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-base: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Surfaces & Text */
+    --app-bg: #EDF2F7;
+    --surface: #FFFFFF;
+    --surface-2: #F8FAFC;
+    --surface-hover: #F1F5F9;
+    --border-soft: #E2E8F0;
+    --text-strong: #0F172A;
+    --text-body: #334155;
+    --text-muted: #64748B;
+
+    /* Inline template colors (modal / preview / report) */
+    --tpl-surface: #FFFFFF;
+    --tpl-surface-2: #FAFAFA;
+    --tpl-chip: #F0F4F8;
+    --tpl-neutral: #F5F5F5;
+    --tpl-border: #EEEEEE;
+    --tpl-text: #333333;
+    --tpl-text-muted: #616161;
+    --tpl-info-bg: #E3F2FD;
+    --tpl-info-border: #BBDEFB;
+    --tpl-info-text: #1565C0;
+    --tpl-success-bg: #E8F5E9;
+    --tpl-success-border: #C8E6C9;
+    --tpl-success-text: #2E7D32;
+    --tpl-warn-bg: #FFF3E0;
+    --tpl-warn-border: #FFCC80;
+    --tpl-warn-text: #E65100;
+    --tpl-violet-bg: #F3E5F5;
+    --tpl-violet-border: #DDD6FE;
+    --tpl-violet-text: #6A1B9A;
+    --tpl-danger-bg: #FFEBEE;
+    --tpl-danger-border: #FECACA;
+    --tpl-danger-text: #C62828;
 }
 
 /* ========== RESET & BASE ========== */
@@ -116,7 +164,7 @@ html {
 body {
     font-family: var(--font-sans);
     font-feature-settings: 'tnum' on, 'cv02', 'cv03', 'cv04';
-    background: #EDF2F7;
+    background: var(--app-bg);
     min-height: 100vh;
     height: 100%;
     padding: 8px 12px;
@@ -835,7 +883,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
+    flex-wrap: wrap;
+    gap: 6px 10px;
     box-shadow: var(--shadow-xs);
 }
 
@@ -845,6 +894,7 @@ body {
     gap: 10px;
     cursor: pointer;
     min-width: 0;
+    flex-shrink: 0;
 }
 
 .line-header-title {
@@ -852,6 +902,74 @@ body {
     font-weight: 800;
     color: var(--slate-900);
     letter-spacing: 0.3px;
+}
+
+.line-header-stats {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    flex-wrap: wrap;
+    min-width: 0;
+}
+
+.line-header-pcs {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--primary-50);
+    border: 1px solid var(--primary-100);
+    color: var(--primary-700);
+    font-size: 10.5px;
+    font-weight: 800;
+    padding: 2px 9px;
+    border-radius: var(--radius-full);
+    white-space: nowrap;
+    letter-spacing: 0.2px;
+}
+
+.line-color-caption {
+    font-size: 9.5px;
+    font-weight: 700;
+    color: var(--slate-400);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.line-color-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--slate-50);
+    border: 1px solid var(--slate-200);
+    color: var(--slate-600);
+    font-size: 10.5px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    white-space: nowrap;
+}
+
+.line-color-chip b {
+    color: var(--slate-900);
+    font-weight: 800;
+}
+
+.line-color-unit {
+    color: var(--slate-400);
+    font-size: 9px;
+    font-weight: 600;
+    margin-left: -2px;
+}
+
+.line-color-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--slate-400);
+    border: 1px solid rgba(15, 23, 42, 0.18);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+    flex-shrink: 0;
 }
 
 .line-header-count {
@@ -1052,6 +1170,63 @@ body {
     font-family: var(--font-mono);
     letter-spacing: 0.2px;
     word-break: break-all;
+}
+
+.pkg-id-copyable {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 6px;
+    margin-left: -6px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+    user-select: none;
+}
+
+.pkg-id-copyable:hover,
+.pkg-id-copyable:focus-visible {
+    background: var(--primary-50);
+    color: var(--primary-600);
+    outline: none;
+}
+
+.pkg-id-copy-icon {
+    font-size: 10.5px;
+    opacity: 0.35;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.pkg-id-copyable:hover .pkg-id-copy-icon,
+.pkg-id-copyable:focus-visible .pkg-id-copy-icon {
+    opacity: 1;
+}
+
+.pkg-id-copyable:active .pkg-id-copy-icon {
+    transform: scale(0.88);
+}
+
+.pkg-id-copyable.copied {
+    background: var(--emerald-100);
+    color: var(--emerald-700);
+}
+
+.copy-id-btn {
+    border: 1px solid currentColor;
+    background: transparent;
+    color: inherit;
+    opacity: 0.5;
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-size: 10px;
+    line-height: 1.4;
+    cursor: pointer;
+    transition: opacity 0.15s ease, background 0.15s ease;
+}
+
+.copy-id-btn:hover {
+    opacity: 1;
+    background: rgba(21, 101, 192, 0.08);
 }
 
 .pkg-style {
@@ -2121,6 +2296,269 @@ body {
     }
 }
 
+/* ========== THEME SWITCHER (Sáng / Tối / Hệ thống) ========== */
+.theme-switcher {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 2px 3px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--radius-full);
+}
+
+.theme-label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 6px;
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    color: #94A3B8;
+    white-space: nowrap;
+}
+
+.theme-btn {
+    width: 26px;
+    height: 26px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: #C7D2E4;
+    font-size: 11.5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.theme-btn:hover {
+    background: rgba(255, 255, 255, 0.14);
+    color: #FFFFFF;
+}
+
+.theme-btn.active {
+    background: #FFFFFF;
+    color: #0F172A;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 900px) {
+    .theme-label { display: none; }
+}
+
+/* ========== DARK THEME ========== */
+[data-theme="dark"] {
+    color-scheme: dark;
+
+    --app-bg: #060A13;
+    --surface: #0F172A;
+    --surface-2: #131E33;
+    --surface-hover: #1B2740;
+    --border-soft: #253248;
+    --text-strong: #F8FAFC;
+    --text-body: #CBD5E1;
+    --text-muted: #94A3B8;
+
+    --slate-25: #0B1322;
+    --slate-50: #111C2E;
+    --slate-100: #1A2740;
+    --slate-200: #2A3A55;
+    --slate-300: #3C4F70;
+    --slate-400: #7A8CA6;
+    --slate-500: #A3B2C7;
+    --slate-600: #C3CFDF;
+    --slate-700: #DDE5EF;
+    --slate-800: #EEF3F9;
+    --slate-900: #F8FAFC;
+
+    --primary-50: #12233E;
+    --primary-100: #172E52;
+    --primary-200: #21406E;
+    --primary-600: #60A5FA;
+    --primary-700: #93C5FD;
+
+    --emerald-50: #0A2A22;
+    --emerald-100: #0E3A2E;
+    --emerald-200: #145C46;
+    --emerald-600: #34D399;
+    --emerald-700: #6EE7B7;
+
+    --amber-50: #2A1F0B;
+    --amber-100: #3A2A0E;
+    --amber-200: #5C4314;
+    --amber-600: #FBBF24;
+    --amber-700: #FCD34D;
+
+    --rose-50: #2A1014;
+    --rose-100: #3A161C;
+    --rose-200: #5C2029;
+    --rose-600: #F87171;
+    --rose-700: #FCA5A5;
+
+    --sky-50: #0B2333;
+    --sky-100: #0E3045;
+    --sky-200: #144A6A;
+    --sky-600: #38BDF8;
+    --sky-700: #7DD3FC;
+
+    --violet-50: #1E1338;
+    --violet-100: #2A1A4D;
+    --violet-200: #3D2770;
+    --violet-600: #A78BFA;
+    --violet-700: #C4B5FD;
+
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.35);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.55), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.65), 0 8px 10px -6px rgba(0, 0, 0, 0.45);
+
+    /* Inline template colors */
+    --tpl-surface: #0F172A;
+    --tpl-surface-2: #131E33;
+    --tpl-chip: #1B2740;
+    --tpl-neutral: #1B2740;
+    --tpl-border: #253248;
+    --tpl-text: #E2E8F0;
+    --tpl-text-muted: #A3B2C7;
+    --tpl-info-bg: #12263F;
+    --tpl-info-border: #1E3A5F;
+    --tpl-info-text: #93C5FD;
+    --tpl-success-bg: #0F2C22;
+    --tpl-success-border: #145C46;
+    --tpl-success-text: #6EE7B7;
+    --tpl-warn-bg: #2A1F0B;
+    --tpl-warn-border: #5C4314;
+    --tpl-warn-text: #FCD34D;
+    --tpl-violet-bg: #221540;
+    --tpl-violet-border: #3D2770;
+    --tpl-violet-text: #C4B5FD;
+    --tpl-danger-bg: #2A1014;
+    --tpl-danger-border: #5C2029;
+    --tpl-danger-text: #FCA5A5;
+}
+
+[data-theme="dark"] .header,
+[data-theme="dark"] .modal-header,
+[data-theme="dark"] .auth-header {
+    background: #0A1020;
+}
+
+[data-theme="dark"] .container,
+[data-theme="dark"] .control-panel,
+[data-theme="dark"] .control-row-sub,
+[data-theme="dark"] .compact-input-group,
+[data-theme="dark"] .btn-outline,
+[data-theme="dark"] .btn-outline-danger,
+[data-theme="dark"] .kpi-item,
+[data-theme="dark"] .data-strip,
+[data-theme="dark"] .line-header,
+[data-theme="dark"] .package-card,
+[data-theme="dark"] .shift-toggle,
+[data-theme="dark"] .shift-quick-select,
+[data-theme="dark"] .shift-toggle-btn,
+[data-theme="dark"] .btn-tiny,
+[data-theme="dark"] .hour-input,
+[data-theme="dark"] .selection-bar,
+[data-theme="dark"] .sel-chip,
+[data-theme="dark"] .selection-clear-btn,
+[data-theme="dark"] .pkg-img-preview,
+[data-theme="dark"] .modal-box,
+[data-theme="dark"] .auth-card,
+[data-theme="dark"] .compact-filter-select {
+    background: var(--surface);
+}
+
+[data-theme="dark"] .progress-bar-wrapper {
+    background: var(--surface-2);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+
+[data-theme="dark"] .compact-search-input:focus,
+[data-theme="dark"] .auth-input-group input:focus {
+    background: var(--surface-2);
+}
+
+[data-theme="dark"] .line-checkbox,
+[data-theme="dark"] .cmd-checkbox {
+    background: var(--surface-2);
+}
+
+[data-theme="dark"] .kpi-item-selected,
+[data-theme="dark"] .package-card.selected {
+    background: #101D34;
+}
+
+[data-theme="dark"] .kpi-item-ot {
+    background: #1A1430;
+}
+
+[data-theme="dark"] .segment-btn:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="dark"] .segment-btn.active {
+    background: var(--surface-2);
+    box-shadow: none;
+}
+
+[data-theme="dark"] .segment-btn.active.hc {
+    background: var(--amber-50);
+    color: var(--amber-700);
+}
+
+[data-theme="dark"] .segment-btn.active.ot {
+    background: var(--violet-50);
+    color: var(--violet-700);
+}
+
+[data-theme="dark"] .package-card:hover {
+    border-color: #3B82F6;
+}
+
+[data-theme="dark"] .line-color-dot {
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-track {
+    background: #0B1322;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+    background: #2A3A55;
+    border-radius: 8px;
+    border: 2px solid #0B1322;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+    background: #3C4F70;
+}
+
+/* SweetAlert2 (toast / hộp thoại xác nhận) */
+[data-theme="dark"] .swal2-popup {
+    background: var(--surface);
+    color: var(--text-body);
+    border: 1px solid var(--border-soft);
+}
+
+[data-theme="dark"] .swal2-title,
+[data-theme="dark"] .swal2-html-container {
+    color: var(--text-strong);
+}
+
+[data-theme="dark"] .swal2-toast {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.55);
+}
+
     </style>
 </head>
 <body>
@@ -2165,6 +2603,18 @@ body {
             <span class="header-fa" title="Trạng thái kết nối dịch vụ gửi lệnh FA tự động">
                 <i class="fas fa-robot"></i> FA <span class="fa-status-indicator" id="faStatusIndicator"></span>
             </span>
+            <div class="theme-switcher" role="group" aria-label="Chế độ giao diện">
+                <span class="theme-label"><i class="fas fa-adjust"></i> Giao diện</span>
+                <button type="button" class="theme-btn" data-theme-choice="light" title="Giao diện sáng" aria-label="Giao diện sáng" aria-pressed="false">
+                    <i class="fas fa-sun"></i>
+                </button>
+                <button type="button" class="theme-btn" data-theme-choice="dark" title="Giao diện tối" aria-label="Giao diện tối" aria-pressed="false">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button type="button" class="theme-btn" data-theme-choice="system" title="Theo hệ thống" aria-label="Theo hệ thống" aria-pressed="false">
+                    <i class="fas fa-circle-half-stroke"></i>
+                </button>
+            </div>
             <a href="https://input-hourly-target.vercel.app/" target="_blank" class="header-manual-btn" title="Chuyển sang trang nhập liệu thủ công">
                 <i class="fas fa-keyboard"></i> Nhập Thủ Công
             </a>
@@ -2291,6 +2741,9 @@ body {
                     <i class="fas fa-moon"></i> OT 11h
                 </button>
                 <div class="toolbar-divider"></div>
+                <button class="btn btn-outline btn-xs" id="btnCopySelected" onclick="copySelectedPackageIds()" title="Sao chép mã của các gói đã chọn (mỗi mã một dòng)" disabled>
+                    <i class="fas fa-copy"></i> Copy mã
+                </button>
                 <button class="btn btn-outline-danger btn-xs" id="btnTopClear" onclick="resetAllSelections()" title="Bỏ chọn tất cả gói và đặt lại ca/giờ" disabled>
                     <i class="fas fa-times"></i> Bỏ chọn
                 </button>
@@ -2629,7 +3082,8 @@ body {
 
     // Constants
     const LUNCH_SLOT_INDEX = 4;
-    const OT_START_INDEX = 8;
+    const DINNER_SLOT_INDEX = 9;            // Nghỉ cơm tối (16:15 - 17:15)
+    const OT_SLOT_INDICES = [10, 11, 12];   // 3 slot cuối = 17:15 - 20:15, hệ thống tính là OT
     const timeSlots = [
         "07:15 - 08:15", "08:15 - 09:15", "09:15 - 10:15", "10:15 - 11:15", 
         "11:15 - 12:15", "12:15 - 13:15", "13:15 - 14:15", "14:15 - 15:15", 
@@ -2642,10 +3096,75 @@ body {
     let batchConfigs = {};
     let globalFaEnabled = true; // Mặc định luôn bật FA
 
+    // ========== THEME (Sáng / Tối / Theo hệ thống) ==========
+    const THEME_STORAGE_KEY = 'mesThemeChoice';
+    const themeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+    function getThemeChoice() {
+        const choice = localStorage.getItem(THEME_STORAGE_KEY);
+        return (choice === 'light' || choice === 'dark' || choice === 'system') ? choice : 'system';
+    }
+
+    function resolveTheme(choice) {
+        if (choice === 'system') return themeMediaQuery.matches ? 'dark' : 'light';
+        return choice;
+    }
+
+    function applyTheme(choice = getThemeChoice()) {
+        const resolved = resolveTheme(choice);
+        const root = document.documentElement;
+
+        root.setAttribute('data-theme', resolved);
+        root.setAttribute('data-theme-choice', choice);
+        root.style.colorScheme = resolved;
+
+        document.querySelectorAll('.theme-btn').forEach(btn => {
+            const isActive = btn.dataset.themeChoice === choice;
+            btn.classList.toggle('active', isActive);
+            btn.setAttribute('aria-pressed', String(isActive));
+        });
+    }
+
+    function setThemeChoice(choice) {
+        if (choice !== 'light' && choice !== 'dark' && choice !== 'system') return;
+
+        try {
+            localStorage.setItem(THEME_STORAGE_KEY, choice);
+        } catch (e) {
+            console.warn('Không lưu được lựa chọn giao diện:', e);
+        }
+
+        applyTheme(choice);
+
+        const labels = { light: 'Giao diện sáng', dark: 'Giao diện tối', system: 'Theo hệ thống' };
+        showToast(`${labels[choice]} đã được áp dụng`, 'success');
+    }
+
+    function initTheme() {
+        applyTheme(getThemeChoice());
+
+        document.querySelectorAll('.theme-btn').forEach(btn => {
+            btn.addEventListener('click', () => setThemeChoice(btn.dataset.themeChoice));
+        });
+    }
+
+    // Đổi giao diện ngay khi hệ điều hành thay đổi (chỉ ở chế độ "Theo hệ thống")
+    const handleSystemThemeChange = () => {
+        if (getThemeChoice() === 'system') applyTheme('system');
+    };
+    if (typeof themeMediaQuery.addEventListener === 'function') {
+        themeMediaQuery.addEventListener('change', handleSystemThemeChange);
+    } else if (typeof themeMediaQuery.addListener === 'function') {
+        themeMediaQuery.addListener(handleSystemThemeChange);
+    }
+
     // ========== 2. INITIALIZATION ==========
     document.addEventListener('DOMContentLoaded', function() {
         // Run session check first (blocks UI if not authenticated)
         checkSession();
+
+        // Khôi phục giao diện đã chọn (mặc định: theo hệ thống)
+        initTheme();
         
         // Set default date to today
         const today = new Date().toISOString().split('T')[0];
@@ -2675,6 +3194,14 @@ body {
             if (!card) return;
             
             const pkgId = card.id.replace('card-', '');
+            
+            // Nút copy mã gói: chỉ sao chép, không bật/tắt chọn gói
+            const copyTarget = e.target.closest('[data-copy-id]');
+            if (copyTarget) {
+                e.stopPropagation();
+                copyPackageIds([copyTarget.dataset.copyId]);
+                return;
+            }
             
             // If click is directly on checkbox, let the checkbox handle it
             if (e.target.type === 'checkbox' || e.target.closest('.cmd-checkbox')) {
@@ -2754,6 +3281,16 @@ body {
                 handleOTModeClick(pkgId, otMode);
                 e.stopPropagation();
             }
+        });
+
+        // Hỗ trợ bàn phím cho nút copy mã gói (Enter / Space)
+        container.addEventListener('keydown', function(e) {
+            if (e.key !== 'Enter' && e.key !== ' ') return;
+            const copyTarget = e.target.closest('[data-copy-id]');
+            if (!copyTarget) return;
+            e.preventDefault();
+            e.stopPropagation();
+            copyPackageIds([copyTarget.dataset.copyId]);
         });
     }
 
@@ -3238,6 +3775,73 @@ body {
         previewDiv.style.display = 'none'; 
     }
 
+    // ========== LINE SUMMARY: TỔNG PCS + PHÂN BỔ MÀU ==========
+    const COLOR_SWATCHES = {
+        BLACK: '#111827', DEN: '#111827',
+        WHITE: '#FFFFFF', TRANG: '#FFFFFF',
+        SAND: '#D9C7A7', BE: '#D9C7A7',
+        NAVY: '#1E3A8A', BLUE: '#2563EB', XANHDUONG: '#2563EB',
+        RED: '#DC2626', DO: '#DC2626',
+        GREEN: '#16A34A', XANHLA: '#16A34A',
+        GREY: '#9CA3AF', GRAY: '#9CA3AF', XAM: '#9CA3AF',
+        BROWN: '#92400E', NAU: '#92400E',
+        BEIGE: '#E7D8C9',
+        PINK: '#EC4899', HONG: '#EC4899',
+        PURPLE: '#7C3AED', TIM: '#7C3AED',
+        YELLOW: '#FACC15', VANG: '#FACC15',
+        ORANGE: '#F97316', CAM: '#F97316',
+        OLIVE: '#6B7A2F', KHAKI: '#C3B091',
+        CREAM: '#F5EBDC', IVORY: '#F8F1E3',
+        CHARCOAL: '#374151', SILVER: '#CBD5E1', GOLD: '#D4AF37'
+    };
+
+    function normalizeColorKey(value) {
+        return String(value || '')
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/đ/gi, 'd')
+            .toUpperCase()
+            .trim();
+    }
+
+    function getColorSwatch(colorName) {
+        const key = normalizeColorKey(colorName).replace(/\s+/g, '');
+        if (!key) return '#94A3B8';
+        if (COLOR_SWATCHES[key]) return COLOR_SWATCHES[key];
+
+        for (const name of Object.keys(COLOR_SWATCHES)) {
+            if (key.includes(name)) return COLOR_SWATCHES[name];
+        }
+        return '#94A3B8';
+    }
+
+    function buildLineSummaries(list) {
+        const summaries = new Map();
+
+        list.forEach(p => {
+            if (!summaries.has(p.line)) {
+                summaries.set(p.line, { count: 0, pcs: 0, colors: new Map() });
+            }
+            const summary = summaries.get(p.line);
+            const target = Number(p.target) || 0;
+            summary.count += 1;
+            summary.pcs += target;
+
+            const rawColor = String(p.color || '').trim();
+            const colorKey = normalizeColorKey(rawColor);
+            if (!colorKey || colorKey === 'N/A' || colorKey === 'NA' || colorKey === 'NULL' || colorKey === '-') {
+                return;
+            }
+
+            if (!summary.colors.has(colorKey)) {
+                summary.colors.set(colorKey, { label: rawColor, pcs: 0 });
+            }
+            summary.colors.get(colorKey).pcs += target;
+        });
+
+        return summaries;
+    }
+
     function renderPackageList(list) {
         const container = document.getElementById('packageListContainer');
         if (list.length === 0) {
@@ -3259,26 +3863,45 @@ body {
             return numA - numB;
         });
 
-        // Đếm số gói theo Line để hiển thị trên header
-        const lineTotals = new Map();
-        list.forEach(p => lineTotals.set(p.line, (lineTotals.get(p.line) || 0) + 1));
+        // Tổng sản lượng + phân bổ màu theo từng Line để hiển thị trên header
+        const lineSummaries = buildLineSummaries(list);
 
         list.forEach(p => {
             // Add line header if needed
             if (p.line !== currentLine) {
                 currentLine = p.line;
-                const lineTotal = lineTotals.get(p.line) || 0;
+                const summary = lineSummaries.get(p.line) || { count: 0, pcs: 0, colors: new Map() };
+                const lineTotal = summary.count;
                 const lineSelected = list.filter(item => item.line === p.line && batchSelected.has(item.id)).length;
                 const safeLine = escapeHtml(p.line);
+
+                const colorChips = Array.from(summary.colors.values())
+                    .sort((a, b) => b.pcs - a.pcs)
+                    .map(info => {
+                        const safeColor = escapeHtml(info.label);
+                        return `<span class="line-color-chip" title="Màu ${safeColor}: ${formatNumber(info.pcs)} pcs">
+                            <span class="line-color-dot" style="background:${getColorSwatch(info.label)};"></span>
+                            <span>${safeColor}</span>
+                            <b>${formatNumber(info.pcs)}</b>
+                            <span class="line-color-unit">pcs</span>
+                        </span>`;
+                    }).join('');
 
                 lineHeader = document.createElement('div');
                 lineHeader.className = 'line-header';
                 lineHeader.dataset.line = p.line;
                 lineHeader.innerHTML = `
                     <label class="line-header-left">
-                        <input type="checkbox" class="line-checkbox" aria-label="Chọn tất cả gói Line ${safeLine}">
-                        <span class="line-header-title">LINE ${safeLine}</span>
+                        <input type="checkbox" class="line-checkbox" aria-label="Chọn tất cả gói ${safeLine}">
+                        <span class="line-header-title">${safeLine}</span>
                     </label>
+                    <div class="line-header-stats">
+                        <span class="line-header-pcs" title="Tổng sản lượng của ${safeLine}">
+                            <i class="fas fa-cubes"></i> ${formatNumber(summary.pcs)} pcs
+                        </span>
+                        ${summary.colors.size > 0 ? '<span class="line-color-caption">màu</span>' : ''}
+                        ${colorChips}
+                    </div>
                     <span class="line-header-count">${lineSelected}/${lineTotal} đã chọn</span>
                 `;
                 const lineCheckbox = lineHeader.querySelector('.line-checkbox');
@@ -3315,7 +3938,10 @@ body {
                     </div>
                     <div class="col-info">
                         <div class="pkg-top-row">
-                            <span class="pkg-id">${p.id}</span>
+                            <span class="pkg-id pkg-id-copyable" role="button" tabindex="0" data-copy-id="${escapeHtml(p.id)}" title="Nhấp để sao chép mã gói">
+                                <span>${p.id}</span>
+                                <i class="fas fa-copy pkg-id-copy-icon"></i>
+                            </span>
                             <span class="tag tag-line"><i class="fas fa-layer-group"></i> Line ${p.line}</span>
                         </div>
                         <div class="pkg-style" title="${escapeHtml(p.style)}">${p.style}</div>
@@ -3549,6 +4175,77 @@ body {
         });
     }
 
+    // ========== SAO CHÉP NHANH MÃ GÓI (MXPACKAGE) ==========
+    async function copyTextToClipboard(text) {
+        try {
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(text);
+                return true;
+            }
+        } catch (err) {
+            console.warn('Clipboard API không khả dụng, dùng fallback:', err);
+        }
+
+        // Fallback cho trình duyệt / kết nối không bảo mật (http)
+        try {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.setAttribute('readonly', '');
+            textarea.style.position = 'fixed';
+            textarea.style.top = '-1000px';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            textarea.setSelectionRange(0, text.length);
+            const ok = document.execCommand('copy');
+            document.body.removeChild(textarea);
+            return ok;
+        } catch (err) {
+            console.error('Sao chép thất bại:', err);
+            return false;
+        }
+    }
+
+    function markCopied(copyId) {
+        document.querySelectorAll('[data-copy-id]').forEach(el => {
+            if (el.dataset.copyId !== copyId) return;
+
+            el.classList.add('copied');
+            const icon = el.querySelector('.pkg-id-copy-icon');
+            if (icon) icon.className = 'fas fa-check pkg-id-copy-icon';
+
+            setTimeout(() => {
+                el.classList.remove('copied');
+                if (icon) icon.className = 'fas fa-copy pkg-id-copy-icon';
+            }, 1400);
+        });
+    }
+
+    async function copyPackageIds(ids) {
+        const list = (Array.isArray(ids) ? ids : [ids]).filter(Boolean);
+        if (list.length === 0) {
+            showToast('Không có mã gói để sao chép.', 'warning');
+            return;
+        }
+
+        const ok = await copyTextToClipboard(list.join('\n'));
+        if (!ok) {
+            showToast('Không thể sao chép. Vui lòng thử lại.', 'error');
+            return;
+        }
+
+        list.forEach(markCopied);
+        showToast(list.length === 1 ? 'Đã sao chép mã gói' : `Đã sao chép ${list.length} mã gói`, 'success');
+    }
+
+    function copySelectedPackageIds() {
+        if (batchSelected.size === 0) {
+            showToast('Chưa chọn gói nào để sao chép.', 'warning');
+            return;
+        }
+        copyPackageIds(Array.from(batchSelected));
+    }
+
     function setText(id, value) {
         const el = document.getElementById(id);
         if (el) el.textContent = value;
@@ -3721,6 +4418,8 @@ body {
         if (btnProcess) btnProcess.disabled = stats.total === 0;
         const btnClear = document.getElementById('btnTopClear');
         if (btnClear) btnClear.disabled = stats.total === 0;
+        const btnCopy = document.getElementById('btnCopySelected');
+        if (btnCopy) btnCopy.disabled = stats.total === 0;
 
         // Sticky selection bar (if present)
         setText('barSelectedCount', formatNumber(stats.total));
@@ -3873,50 +4572,56 @@ body {
             }
         }
         
-        // Xác định slots sẽ điền
+        // Xác định slots sẽ điền (luôn sắp xếp theo thứ tự thời gian tăng dần)
         let slotsToFill = [];
-        
+
         if (shiftType === 'morning') {
             // Ca sáng: slot 1-4, 6-9 (bỏ slot 5 nghỉ trưa)
             const morningSlots = [0, 1, 2, 3, 5, 6, 7, 8];
-            const effectiveSlots = Math.min(totalSlots, 8);
+            const effectiveSlots = Math.min(totalSlots, morningSlots.length);
             slotsToFill = morningSlots.slice(0, effectiveSlots);
-            
+
         } else if (shiftType === 'ot') {
             if (otMode === '3h') {
-                // Chỉ điền 3 slot cuối (OT) - bỏ qua slot dinner
-                const otSlots = [10, 11, 12];
-                const effectiveSlots = Math.min(totalSlots, 3);
-                slotsToFill = otSlots.slice(0, effectiveSlots);
+                // Chỉ điền 3 slot cuối (OT). Nếu ít giờ hơn thì luôn lấy từ slot cuối cùng trở lên.
+                const effectiveSlots = Math.min(totalSlots, OT_SLOT_INDICES.length);
+                slotsToFill = OT_SLOT_INDICES.slice(OT_SLOT_INDICES.length - effectiveSlots);
             } else {
-                // 11h đều: điền cả sáng và OT, ưu tiên OT trước
-                let allSlots = [];
-                
-                // OT slots trước (9-12, bỏ dinner)
-                for (let i = OT_START_INDEX; i < timeSlots.length - 1; i++) {
-                    allSlots.push(i);
-                }
-                
-                // Sáng slots sau (1-4, 6-8, bỏ lunch)
-                for (let i = 0; i < OT_START_INDEX; i++) {
-                    if (i !== LUNCH_SLOT_INDEX) {
-                        allSlots.push(i);
-                    }
-                }
-                
-                const effectiveSlots = Math.min(totalSlots, allSlots.length);
-                slotsToFill = allSlots.slice(0, effectiveSlots);
+                // 11 giờ: toàn bộ slot làm việc (bỏ nghỉ trưa + nghỉ cơm tối),
+                // 3 slot cuối luôn là khung OT. Nếu thiếu giờ thì cũng lấy từ slot cuối trở lên.
+                const workingSlots = timeSlots
+                    .map((_, index) => index)
+                    .filter(index => index !== LUNCH_SLOT_INDEX && index !== DINNER_SLOT_INDEX);
+
+                const effectiveSlots = Math.min(totalSlots, workingSlots.length);
+                slotsToFill = workingSlots.slice(workingSlots.length - effectiveSlots);
             }
         }
-        
+
+        // Sản lượng theo đúng thứ tự thời gian của slotsToFill.
+        // OT 11 giờ: đảo ngược để điền từ slot cuối (OT) trở về trước,
+        // nhờ vậy phần sản lượng luôn ưu tiên rơi vào 3 slot OT cuối cùng.
+        const fillFromEnd = shiftType === 'ot' && otMode === '11h' && !hasHalfSlot;
+        const slotValues = fillFromEnd ? [...distribution].reverse() : [...distribution];
+
         // Tạo production data object
         const productionData = {};
-        distribution.forEach((qty, index) => {
+        slotValues.forEach((qty, index) => {
             if (slotsToFill[index] !== undefined) {
                 const slotTime = timeSlots[slotsToFill[index]];
                 productionData[slotTime] = qty;
             }
         });
+
+        // Thống kê phần sản lượng rơi vào khung OT (3 slot cuối)
+        const otSlotCount = shiftType === 'ot'
+            ? slotsToFill.filter(index => OT_SLOT_INDICES.includes(index)).length
+            : 0;
+        const otQty = shiftType === 'ot'
+            ? slotsToFill.reduce((sum, slotIndex, index) => {
+                return OT_SLOT_INDICES.includes(slotIndex) ? sum + (slotValues[index] || 0) : sum;
+            }, 0)
+            : 0;
         
         // Tính tổng để kiểm tra
         const totalDistributed = distribution.reduce((a, b) => a + b, 0);
@@ -3924,9 +4629,12 @@ body {
         
         return {
             distribution: distribution,
+            slotValues: slotValues,
             productionData: productionData,
             totalHours: roundedHours,
             slotsUsed: slotsToFill.length,
+            otSlotCount: otSlotCount,
+            otQty: otQty,
             totalDistributed: totalDistributed,
             isExact: isExact,
             difference: totalQty - totalDistributed
@@ -3964,19 +4672,19 @@ body {
         modal.classList.add('open');
         
         let previewHtml = '<div style="max-height: 400px; overflow-y: auto;">';
-        previewHtml += '<h4 style="margin-bottom: 15px; color: #1565c0; font-size: 18px; font-weight: bold;">📋 DỮ LIỆU BÊN DƯỚI SẼ ĐƯỢC GỬI LÊN HỆ THỐNG</h4>';
+        previewHtml += '<h4 style="margin-bottom: 15px; color: var(--tpl-info-text); font-size: 18px; font-weight: bold;">📋 DỮ LIỆU BÊN DƯỚI SẼ ĐƯỢC GỬI LÊN HỆ THỐNG</h4>';
         
         // THÔNG TIN PHÂN BỔ
-        previewHtml += '<div style="margin-bottom: 15px; padding: 10px; background: #e8f5e9; border-radius: 6px; border: 1px solid #4CAF50; font-size: 13px;">';
+        previewHtml += '<div style="margin-bottom: 15px; padding: 10px; background: var(--tpl-success-bg); border-radius: 6px; border: 1px solid var(--tpl-success-border); font-size: 13px;">';
         previewHtml += '<strong><i class="fas fa-info-circle"></i> THÔNG TIN PHÂN BỔ:</strong><br>';
         previewHtml += '☀️ <b>Ca sáng</b>: Tối đa 7,5 giờ (bỏ slot nghỉ trưa)<br>';
         previewHtml += '🌙 <b>OT 3 giờ</b>: Chỉ 3 giờ cuối<br>';
-        previewHtml += '🌙 <b>OT 11 giờ</b>: Ưu tiên OT trước, rồi đến ca sáng<br>';
+        previewHtml += '🌙 <b>OT 11 giờ</b>: Điền từ slot cuối (3 giờ OT) trở về trước<br>';
         previewHtml += '✅ <b>Đảm bảo tổng sản lượng = Target</b>';
         previewHtml += '</div>';
         
         // FA Status - Mặc định luôn bật
-        previewHtml += `<div style="margin-bottom: 15px; padding: 10px; background: #e8f5e9; border-radius: 6px; border: 1px solid #4CAF50; font-size: 13px;">
+        previewHtml += `<div style="margin-bottom: 15px; padding: 10px; background: var(--tpl-success-bg); border-radius: 6px; border: 1px solid var(--tpl-success-border); font-size: 13px;">
             <strong><i class="fas fa-robot"></i> TRẠNG THÁI GỬI FA:</strong> 
             ✅ SẼ GỬI lệnh FA cho tất cả gói
         </div>`;
@@ -3991,7 +4699,7 @@ body {
             if (!pkg || !cfg) return;
             
             const result = divideQuantityByHours(pkg.target, cfg.hours, cfg.shift, cfg.otMode);
-            const distribution = result.distribution;
+            const distribution = result.slotValues;
             const totalHours = result.totalHours;
             const slotsUsed = result.slotsUsed;
             const sum = result.totalDistributed;
@@ -4004,33 +4712,42 @@ body {
             const thumbUrl = generateThumbnailUrl(pkg.id, pkg.fileName);
             
             previewHtml += `
-                <div style="background: white; border-radius: 8px; padding: 12px; margin-bottom: 10px; border: 1px solid #e3f2fd; box-shadow: 0 2px 4px rgba(0,0,0,0.05); word-break: break-word;">
+                <div style="background: var(--tpl-surface); border-radius: 8px; padding: 12px; margin-bottom: 10px; border: 1px solid var(--tpl-info-border); box-shadow: 0 2px 4px rgba(0,0,0,0.05); word-break: break-word;">
                     <div style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px;">
                         <img src="${thumbUrl}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd; flex-shrink: 0;" 
                              onerror="this.src='https://placehold.co/50x50?text=No+Img'">
                         <div style="flex: 1; min-width: 0;">
-                            <div style="font-weight: bold; color: #1565c0; font-size: 14px; word-break: break-all; line-height: 1.2;">${pkg.id}</div>
-                            <div style="font-weight: bold; color: #333; font-size: 14px; line-height: 1.2; word-break: break-word;">${pkg.style}</div>
-                            <div style="display: flex; flex-wrap: wrap; gap: 6px; font-size: 12px; color: #555; margin-top: 3px;">
-                                <span style="font-weight: 500; background: #f0f4f8; padding: 2px 6px; border-radius: 4px;">
+                            <div style="font-weight: bold; color: var(--tpl-info-text); font-size: 14px; word-break: break-all; line-height: 1.2; display: flex; align-items: center; gap: 6px;">
+                                <span>${pkg.id}</span>
+                                <button type="button" class="copy-id-btn" title="Sao chép mã gói" onclick="copyPackageIds(['${pkg.id}'])">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <div style="font-weight: bold; color: var(--tpl-text); font-size: 14px; line-height: 1.2; word-break: break-word;">${pkg.style}</div>
+                            <div style="display: flex; flex-wrap: wrap; gap: 6px; font-size: 12px; color: var(--tpl-text-muted); margin-top: 3px;">
+                                <span style="font-weight: 500; background: var(--tpl-chip); padding: 2px 6px; border-radius: 4px;">
                                     <i class="fas fa-industry"></i> Line ${pkg.line}
                                 </span>
-                                <span style="font-weight: 500; background: #f0f4f8; padding: 2px 6px; border-radius: 4px;">
+                                <span style="font-weight: 500; background: var(--tpl-chip); padding: 2px 6px; border-radius: 4px;">
                                     <i class="fas fa-bullseye"></i> Target: ${formatNumber(pkg.target)}
                                 </span>
-                                <span style="font-weight: 500; background: ${cfg.shift === 'ot' ? '#f3e5f5' : '#fff3e0'}; padding: 2px 6px; border-radius: 4px;">
+                                <span style="font-weight: 500; background: ${cfg.shift === 'ot' ? 'var(--tpl-violet-bg)' : 'var(--tpl-warn-bg)'}; padding: 2px 6px; border-radius: 4px;">
                                     <i class="fas ${cfg.shift === 'ot' ? 'fa-moon' : 'fa-sun'}"></i> 
                                     ${cfg.shift === 'ot' ? (cfg.otMode === '11h' ? 'OT 11 giờ' : 'OT 3 giờ') : 'Ca sáng'}
                                 </span>
                             </div>
                         </div>
                     </div>
-                    <div style="font-size: 13px; font-weight: 500; padding: 8px; background: #e3f2fd; border-radius: 6px; border: 1px solid #bbdefb;">
+                    <div style="font-size: 13px; font-weight: 500; padding: 8px; background: var(--tpl-info-bg); border-radius: 6px; border: 1px solid var(--tpl-info-border);">
                         <strong>Phân bổ sản lượng (${formatHours(totalHours)} → ${slotsUsed} slot):</strong> 
-                        <div style="font-size: 12px; font-family: monospace; margin: 4px 0; padding: 6px; background: white; border-radius: 4px;">
+                        <div style="font-size: 12px; font-family: monospace; margin: 4px 0; padding: 6px; background: var(--tpl-surface); border-radius: 4px;">
                             ${distribution.join(', ')}
                         </div>
-                        <div style="font-size: 13px; font-weight: bold; padding: 6px; background: ${isExact ? '#e8f5e9' : '#fff3e0'}; border-radius: 4px; border: 1px solid ${isExact ? '#c8e6c9' : '#ffcc80'}; color: ${isExact ? '#2e7d32' : '#e65100'}; margin-top: 5px;">
+                        ${cfg.shift === 'ot' ? `
+                        <div style="font-size: 12px; color: var(--tpl-violet-text); margin-bottom: 4px;">
+                            🌙 OT dự kiến: <b>${formatNumber(result.otQty)}</b> cái (${result.otSlotCount}/3 slot cuối)
+                        </div>` : ''}
+                        <div style="font-size: 13px; font-weight: bold; padding: 6px; background: ${isExact ? 'var(--tpl-success-bg)' : 'var(--tpl-warn-bg)'}; border-radius: 4px; border: 1px solid ${isExact ? 'var(--tpl-success-border)' : 'var(--tpl-warn-border)'}; color: ${isExact ? 'var(--tpl-success-text)' : 'var(--tpl-warn-text)'}; margin-top: 5px;">
                             ✓ TỔNG: <b>${formatNumber(sum)}</b> cái ${isExact ? '(✅ CHÍNH XÁC)' : '(⚠️ SAI SỐ: ' + formatNumber(difference) + ')'}
                         </div>
                     </div>
@@ -4046,20 +4763,20 @@ body {
         const isTotalExact = totalSum === totalTarget;
         
         previewHtml += `
-            <div style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); padding: 15px; border-radius: 8px; margin-top: 15px; border: 2px solid #2196F3;">
-                <h5 style="color: #1565c0; margin: 0 0 10px 0; font-size: 16px; font-weight: bold;">📊 TỔNG KẾT BATCH</h5>
+            <div style="background: linear-gradient(135deg, var(--tpl-info-bg) 0%, var(--tpl-info-border) 100%); padding: 15px; border-radius: 8px; margin-top: 15px; border: 2px solid var(--primary);">
+                <h5 style="color: var(--tpl-info-text); margin: 0 0 10px 0; font-size: 16px; font-weight: bold;">📊 TỔNG KẾT BATCH</h5>
                 <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 600;">
                     <div style="text-align: center; flex: 1;">
                         <div>Số gói</div>
-                        <div style="font-size: 18px; color: #1565c0; margin-top: 3px;">${formatNumber(batchSelected.size)}</div>
+                        <div style="font-size: 18px; color: var(--tpl-info-text); margin-top: 3px;">${formatNumber(batchSelected.size)}</div>
                     </div>
                     <div style="text-align: center; flex: 1;">
                         <div>Tổng Target</div>
-                        <div style="font-size: 18px; color: #1565c0; margin-top: 3px;">${formatNumber(totalQty)}</div>
+                        <div style="font-size: 18px; color: var(--tpl-info-text); margin-top: 3px;">${formatNumber(totalQty)}</div>
                     </div>
                 </div>
-                <div style="margin-top: 10px; padding: 8px; background: ${isTotalExact ? '#e8f5e9' : '#fff3e0'}; border-radius: 6px; border: 1px solid ${isTotalExact ? '#c8e6c9' : '#ffcc80'}; text-align: center; font-size: 12px;">
-                    <strong>TỔNG DỰ KIẾN GỬI:</strong> <span style="font-size: 16px; color: ${isTotalExact ? '#2e7d32' : '#e65100'}">${formatNumber(totalSum)}</span> / ${formatNumber(totalTarget)} 
+                <div style="margin-top: 10px; padding: 8px; background: ${isTotalExact ? 'var(--tpl-success-bg)' : 'var(--tpl-warn-bg)'}; border-radius: 6px; border: 1px solid ${isTotalExact ? 'var(--tpl-success-border)' : 'var(--tpl-warn-border)'}; text-align: center; font-size: 12px;">
+                    <strong>TỔNG DỰ KIẾN GỬI:</strong> <span style="font-size: 16px; color: ${isTotalExact ? 'var(--tpl-success-text)' : 'var(--tpl-warn-text)'}">${formatNumber(totalSum)}</span> / ${formatNumber(totalTarget)} 
                     ${isTotalExact ? '✅' : `⚠️ (Lệch: ${formatNumber(totalTarget - totalSum)})`}
                 </div>
             </div>
@@ -4212,35 +4929,35 @@ body {
             const thumbUrl = generateThumbnailUrl(pkg.id, pkg.fileName);
             
             detailContainer.innerHTML = `
-                <div style="background: white; border: 1px solid #90CAF9; border-radius: 8px; padding: 10px; display: flex; gap: 12px; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); animation: fadeIn 0.3s ease;">
-                    <img src="${thumbUrl}" style="width: 65px; height: 65px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd; background: #f5f5f5;" onerror="this.src='https://placehold.co/65x65?text=No+Img'">
+                <div style="background: var(--tpl-surface); border: 1px solid var(--tpl-info-border); border-radius: 8px; padding: 10px; display: flex; gap: 12px; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); animation: fadeIn 0.3s ease;">
+                    <img src="${thumbUrl}" style="width: 65px; height: 65px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd; background: var(--tpl-neutral);" onerror="this.src='https://placehold.co/65x65?text=No+Img'">
                     <div style="flex: 1; min-width: 0;">
-                        <div style="font-weight: 700; color: #1565C0; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: 'SF Mono', monospace; word-break: break-all;">
+                        <div style="font-weight: 700; color: var(--tpl-info-text); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: 'SF Mono', monospace; word-break: break-all;">
                             ${pkg.id}
                         </div>
-                        <div style="font-weight: 700; color: #333; font-size: 14px; margin: 2px 0 6px 0; word-break: break-word;">
+                        <div style="font-weight: 700; color: var(--tpl-text); font-size: 14px; margin: 2px 0 6px 0; word-break: break-word;">
                             ${pkg.style}
                         </div>
                         <div style="display: flex; gap: 6px; font-size: 11px; flex-wrap: wrap;">
-                            <span style="background: #f5f5f5; color: #616161; padding: 2px 8px; border-radius: 4px; font-weight: 600;">
+                            <span style="background: var(--tpl-neutral); color: var(--tpl-text-muted); padding: 2px 8px; border-radius: 4px; font-weight: 600;">
                                 Line ${pkg.line}
                             </span>
-                            <span style="background: #FFF3E0; color: #EF6C00; padding: 2px 8px; border-radius: 4px; font-weight: 600;">
+                            <span style="background: var(--tpl-warn-bg); color: var(--tpl-warn-text); padding: 2px 8px; border-radius: 4px; font-weight: 600;">
                                 Target: ${formatNumber(pkg.target)}
                             </span>
-                            <span style="background: ${cfg.shift === 'ot' ? '#F3E5F5' : '#E3F2FD'}; color: ${cfg.shift === 'ot' ? '#9C27B0' : '#1976D2'}; padding: 2px 8px; border-radius: 4px; font-weight: 600;">
+                            <span style="background: ${cfg.shift === 'ot' ? 'var(--tpl-violet-bg)' : 'var(--tpl-info-bg)'}; color: ${cfg.shift === 'ot' ? 'var(--tpl-violet-text)' : 'var(--tpl-info-text)'}; padding: 2px 8px; border-radius: 4px; font-weight: 600;">
                                 ${cfg.shift === 'ot' ? (cfg.otMode === '11h' ? 'OT 11 giờ' : 'OT 3 giờ') : 'Ca sáng'}
                             </span>
                         </div>
                     </div>
                 </div>
-                <div style="text-align: center; margin-top: 8px; font-size: 12px; color: #1976D2; font-weight: 600;">
+                <div style="text-align: center; margin-top: 8px; font-size: 12px; color: var(--tpl-info-text); font-weight: 600;">
                     <i class="fas fa-cog fa-spin"></i> Đang gửi dữ liệu...
                 </div>
             `;
         } else if (detailContainer && current === total) {
              detailContainer.innerHTML = `
-                <div style="text-align: center; padding: 15px; color: #2E7D32;">
+                <div style="text-align: center; padding: 15px; color: var(--tpl-success-text);">
                     <i class="fas fa-check-circle fa-2x"></i><br>
                     <strong>Hoàn tất xử lý!</strong>
                 </div>`;
@@ -4290,44 +5007,44 @@ body {
                 <!-- MAIN STATS GRID -->
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px;">
                     <!-- Card 1: Tổng Sản Lượng -->
-                    <div style="background: #F1F8E9; padding: 15px; border-radius: 10px; text-align: center; border: 1px solid #C8E6C9;">
-                        <div style="color: #558B2F; font-size: 28px; font-weight: 800; line-height: 1;">${formatNumber(totalQty)}</div>
-                        <div style="color: #33691E; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-top: 5px;">Tổng Sản Lượng (pcs)</div>
+                    <div style="background: var(--tpl-success-bg); padding: 15px; border-radius: 10px; text-align: center; border: 1px solid var(--tpl-success-border);">
+                        <div style="color: var(--tpl-success-text); font-size: 28px; font-weight: 800; line-height: 1;">${formatNumber(totalQty)}</div>
+                        <div style="color: var(--tpl-success-text); font-size: 11px; font-weight: 700; text-transform: uppercase; margin-top: 5px;">Tổng Sản Lượng (pcs)</div>
                     </div>
                     
                     <!-- Card 2: Tổng Giờ -->
-                    <div style="background: #E3F2FD; padding: 15px; border-radius: 10px; text-align: center; border: 1px solid #BBDEFB;">
-                        <div style="color: #1565C0; font-size: 28px; font-weight: 800; line-height: 1;">${formatHours(totalHours)}</div>
-                        <div style="color: #0F172A; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-top: 5px;">Tổng Giờ Công</div>
+                    <div style="background: var(--tpl-info-bg); padding: 15px; border-radius: 10px; text-align: center; border: 1px solid var(--tpl-info-border);">
+                        <div style="color: var(--tpl-info-text); font-size: 28px; font-weight: 800; line-height: 1;">${formatHours(totalHours)}</div>
+                        <div style="color: var(--text-strong); font-size: 11px; font-weight: 700; text-transform: uppercase; margin-top: 5px;">Tổng Giờ Công</div>
                     </div>
                 </div>
 
                 <!-- DETAILED METRICS -->
-                <div style="display: flex; justify-content: space-between; background: #FAFAFA; padding: 15px; border-radius: 10px; border: 1px solid #EEEEEE; margin-bottom: 20px;">
-                    <div style="text-align: center; flex: 1; border-right: 1px solid #E0E0E0;">
-                        <div style="font-size: 18px; font-weight: 700; color: #424242;">${totalProcessed}</div>
-                        <div style="font-size: 10px; color: #9E9E9E;">Số Gói</div>
+                <div style="display: flex; justify-content: space-between; background: var(--tpl-surface-2); padding: 15px; border-radius: 10px; border: 1px solid var(--tpl-border); margin-bottom: 20px;">
+                    <div style="text-align: center; flex: 1; border-right: 1px solid var(--tpl-border);">
+                        <div style="font-size: 18px; font-weight: 700; color: var(--tpl-text);">${totalProcessed}</div>
+                        <div style="font-size: 10px; color: var(--tpl-text-muted);">Số Gói</div>
                     </div>
-                    <div style="text-align: center; flex: 1; border-right: 1px solid #E0E0E0;">
+                    <div style="text-align: center; flex: 1; border-right: 1px solid var(--tpl-border);">
                         <div style="font-size: 18px; font-weight: 700; color: ${themeColor};">${successRate}%</div>
-                        <div style="font-size: 10px; color: #9E9E9E;">Tỷ Lệ</div>
+                        <div style="font-size: 10px; color: var(--tpl-text-muted);">Tỷ Lệ</div>
                     </div>
                     <div style="text-align: center; flex: 1;">
-                        <div style="font-size: 18px; font-weight: 700; color: #424242;">${formatHours(totalHours)}</div>
-                        <div style="font-size: 10px; color: #9E9E9E;">Tổng Giờ</div>
+                        <div style="font-size: 18px; font-weight: 700; color: var(--tpl-text);">${formatHours(totalHours)}</div>
+                        <div style="font-size: 10px; color: var(--tpl-text-muted);">Tổng Giờ</div>
                     </div>
                 </div>
         `;
 
         // 4. FA STATUS BAR (Mặc định luôn có vì FA luôn bật)
         resultHtml += `
-            <div style="background: #FFF3E0; border-left: 4px solid #FF9800; padding: 12px; border-radius: 4px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;">
-                <div style="font-weight: 700; color: #E65100; font-size: 13px;">
+            <div style="background: var(--tpl-warn-bg); border-left: 4px solid var(--amber-500); padding: 12px; border-radius: 4px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;">
+                <div style="font-weight: 700; color: var(--tpl-warn-text); font-size: 13px;">
                     <i class="fas fa-robot"></i> Trạng thái FA
                 </div>
                 <div style="font-size: 13px;">
-                    <span style="color: #2E7D32; font-weight: 700; margin-right: 10px;">${faSuccessCount} <i class="fas fa-check"></i></span>
-                    <span style="color: #C62828; font-weight: 700;">${faFailCount} <i class="fas fa-times"></i></span>
+                    <span style="color: var(--tpl-success-text); font-weight: 700; margin-right: 10px;">${faSuccessCount} <i class="fas fa-check"></i></span>
+                    <span style="color: var(--tpl-danger-text); font-weight: 700;">${faFailCount} <i class="fas fa-times"></i></span>
                 </div>
             </div>
         `;
@@ -4335,14 +5052,14 @@ body {
         // 5. ERROR LIST (Nếu có lỗi)
         if (errors.length > 0) {
             resultHtml += `
-                <div class="error-details" style="text-align: left; border: 1px solid #FFCDD2; background: #FFEBEE; border-radius: 8px;">
-                    <div style="padding: 10px 15px; border-bottom: 1px solid #FFCDD2; color: #C62828; font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 8px;">
+                <div class="error-details" style="text-align: left; border: 1px solid var(--tpl-danger-border); background: var(--tpl-danger-bg); border-radius: 8px;">
+                    <div style="padding: 10px 15px; border-bottom: 1px solid var(--tpl-danger-border); color: var(--tpl-danger-text); font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 8px;">
                         <i class="fas fa-exclamation-circle"></i> Danh sách lỗi (${errors.length})
                     </div>
                     <div style="max-height: 120px; overflow-y: auto; padding: 0;">
                         ${errors.map((e, i) => `
-                            <div style="padding: 8px 15px; border-bottom: 1px solid rgba(255,0,0,0.1); font-size: 12px; color: #333;">
-                                <span style="font-weight:600; color: #C62828;">${i + 1}.</span> ${e}
+                            <div style="padding: 8px 15px; border-bottom: 1px solid var(--tpl-danger-border); font-size: 12px; color: var(--tpl-text);">
+                                <span style="font-weight:600; color: var(--tpl-danger-text);">${i + 1}.</span> ${e}
                             </div>
                         `).join('')}
                     </div>
