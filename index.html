@@ -2258,8 +2258,10 @@ body {
 @media (max-width: 768px) {
     body { padding: 0; }
     .container { height: 100vh; border-radius: 0; border: none; }
-    .header { padding: 8px 12px; }
+    .header { padding: 8px 12px; gap: 8px; }
     .header-title { font-size: 14px; }
+    .header-fa { display: none; }
+    .header-manual-btn { padding: 5px 8px; }
     .control-row { padding: 8px 10px; }
     .kpi-bar { gap: 6px; }
     .kpi-item { flex: 1 1 45%; }
@@ -2348,6 +2350,13 @@ body {
 
 @media (max-width: 900px) {
     .theme-label { display: none; }
+}
+
+@media (max-width: 480px) {
+    .theme-btn { width: 24px; height: 24px; font-size: 10.5px; }
+    .header-title span:first-child { display: none; }
+    .header-manual-btn { font-size: 0; gap: 0; padding: 6px 9px; }
+    .header-manual-btn i { font-size: 12px; }
 }
 
 /* ========== DARK THEME ========== */
